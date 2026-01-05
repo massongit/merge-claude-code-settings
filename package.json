@@ -1,0 +1,24 @@
+{
+  "name": "merge-claude-code-settings",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "merge-claude-code-settings": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "bun run index.ts",
+    "fix": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/yargs": "^17.0.35",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

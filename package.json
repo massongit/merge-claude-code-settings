@@ -1,0 +1,37 @@
+{
+  "name": "merge-claude-code-settings",
+  "version": "0.1.0",
+  "description": "A TypeScript utility that merges Claude Code settings from multiple project-specific configuration files into the global settings file",
+  "author": "Masaya Suzuki <suzukimasaya428@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/massongit/merge-claude-code-settings.git"
+  },
+  "keywords": [
+    "claude",
+    "cli",
+    "typescript"
+  ],
+  "type": "module",
+  "bin": {
+    "merge-claude-code-settings": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && bun run scripts/add_shebang.ts",
+    "dev": "bun run index.ts",
+    "fix": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/yargs": "^17.0.35",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}

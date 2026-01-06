@@ -13,6 +13,5 @@ try {
   const originalContent = fs.readFileSync(file, "utf8");
   fs.writeFileSync(file, "#!/usr/bin/env node\n" + originalContent);
 } catch (error) {
-  console.error(`Failed to add shebang to "${file}":`, error);
-  process.exit(1);
+  throw new Error(`Failed to add shebang to "${file}": ${error}`);
 }

@@ -57,14 +57,10 @@ node dist/index.js --show-allow-commands
 
 Example output:
 
-<!-- markdownlint-disable MD010 -->
-
 ```text
 /path/to/project/.claude/settings.local.json	Bash(git status)
 /path/to/project/.claude/settings.local.json	Bash(npm run build)
 ```
-
-<!-- markdownlint-enable MD010 -->
 
 ## Merge Logic
 

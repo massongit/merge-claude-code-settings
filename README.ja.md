@@ -58,10 +58,14 @@ node dist/index.js --show-allow-commands
 
 出力例：
 
+<!-- markdownlint-disable MD010 -->
+
 ```text
 /path/to/project/.claude/settings.local.json	Bash(git status)
 /path/to/project/.claude/settings.local.json	Bash(npm run build)
 ```
+
+<!-- markdownlint-enable MD010 -->
 
 ## マージロジック
 

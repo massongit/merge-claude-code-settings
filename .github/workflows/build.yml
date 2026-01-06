@@ -18,10 +18,10 @@ jobs:
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: .bun-version
+      - run: curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/$(cat .safe-chain-version)/install-safe-chain.sh" | sh -s -- --ci
       - name: Install
         run: |
-          curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/$(cat .safe-chain-version)/install-safe-chain.sh" | sh -s -- --ci
-          bunx safe-chain-verify
+          bun safe-chain-verify
           bun install
       - run: bun run build
 concurrency:

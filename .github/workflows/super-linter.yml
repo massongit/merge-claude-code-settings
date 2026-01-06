@@ -48,6 +48,7 @@ jobs:
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: .bun-version
+      - run: curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/$(cat .safe-chain-version)/install-safe-chain.sh" | sh -s -- --ci
       - run: bash "${GITHUB_WORKSPACE}/scripts/super_linter/build/set_path.sh"
       ################################
       # Run Linter against code base #

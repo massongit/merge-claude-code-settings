@@ -17,7 +17,7 @@ jobs:
   format:
     runs-on: ubuntu-latest
     env:
-      SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS: 168 # 7日
+      SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS: 168 # 7 days
     steps:
       - name: Generate a token
         id: generate_token

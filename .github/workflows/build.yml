@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS: 168 # 7日
+      SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS: 168 # 7 days
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:

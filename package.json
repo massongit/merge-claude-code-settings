@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "build": "tsc && bun run scripts/add_shebang.ts",
-    "dev": "bun run index.ts"
+    "dev": "bun run index.ts",
+    "fix": "prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^25.0.3",

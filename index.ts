@@ -104,9 +104,15 @@ function main(showAllowCommands: boolean = false) {
     }
 
     // Read local settings
-    const localSettings: Settings = JSON.parse(
-      readFileSync(localSettingsPath, "utf-8"),
-    );
+    let localSettings: Settings;
+    try {
+      localSettings = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to parse JSON in local settings file "${localSettingsPath}": ${message}`,
+      );
+    }
 
     // Debug mode: Display allowed commands
     if (

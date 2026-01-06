@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/main/install-scripts/install-safe-chain.sh | sh -s -- --ci
 bun install

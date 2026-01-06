@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Script to merge Claude Code settings into the global settings file (~/.claude/settings.json)
  *

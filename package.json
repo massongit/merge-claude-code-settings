@@ -9,7 +9,7 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && bun run scripts/add_shebang.ts",
 		"dev": "bun run index.ts",
 		"fix": "prettier --write ."
 	},

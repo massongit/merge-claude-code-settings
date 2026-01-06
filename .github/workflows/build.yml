@@ -20,7 +20,7 @@ jobs:
           bun-version-file: .bun-version
       - name: Install
         run: |
-          curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/main/install-scripts/install-safe-chain.sh | sh -s -- --ci
+          curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/$(cat .safe-chain-version)/install-safe-chain.sh" | sh -s -- --ci
           bun install
       - run: bun run build
 concurrency:

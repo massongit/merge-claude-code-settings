@@ -37,7 +37,7 @@ jobs:
       - name: Install
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
         run: |
-          curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/main/install-scripts/install-safe-chain.sh | sh -s -- --ci
+          curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/$(cat .safe-chain-version)/install-safe-chain.sh" | sh -s -- --ci
           bun install
       - run: bun run fix
         if: github.event_name != 'pull_request' || github.event.action != 'closed'

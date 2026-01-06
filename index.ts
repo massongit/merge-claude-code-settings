@@ -179,9 +179,10 @@ function main(showAllowCommands: boolean = false) {
   try {
     writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     throw new Error(
       `Failed to write merged settings to "${settingsPath}". ` +
-        `Please check file permissions, available disk space, and that the directory exists: ${(error as Error).message}`,
+        `Please check file permissions, available disk space, and that the directory exists: ${message}`,
     );
   }
 }

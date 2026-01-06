@@ -9,4 +9,10 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, "..", "dist", "index.js");
 
-fs.writeFileSync(file, "#!/usr/bin/env node\n" + fs.readFileSync(file, "utf8"));
+try {
+  const originalContent = fs.readFileSync(file, "utf8");
+  fs.writeFileSync(file, "#!/usr/bin/env node\n" + originalContent);
+} catch (error) {
+  console.error(`Failed to add shebang to "${file}":`, error);
+  process.exit(1);
+}

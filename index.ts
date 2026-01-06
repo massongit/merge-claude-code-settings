@@ -148,8 +148,9 @@ function main(showAllowCommands: boolean = false) {
       continue;
     }
 
-    // Read local settings
     let localSettings: Settings;
+
+    // Read local settings
     try {
       localSettings = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
     } catch (error) {

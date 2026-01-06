@@ -13,9 +13,9 @@
  * --show-allow-commands: Display allowed commands to stdout (for debugging)
  */
 
-import { readFileSync, existsSync, writeFileSync } from "fs";
-import { homedir } from "os";
-import { join } from "path";
+import { readFileSync, existsSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -32,7 +32,7 @@ interface Permissions {
  */
 interface Settings {
 	permissions?: Permissions;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 /**
@@ -81,7 +81,7 @@ function main(showAllowCommands: boolean = false) {
 	const homeDirPath: string = homedir();
 
 	// ~/.claude.json
-	const claudeJSON: { projects?: Record<string, any> } = JSON.parse(
+	const claudeJSON: { projects?: Record<string, unknown> } = JSON.parse(
 		readFileSync(join(homeDirPath, ".claude.json"), "utf-8"),
 	);
 
@@ -114,10 +114,10 @@ function main(showAllowCommands: boolean = false) {
 		if (
 			showAllowCommands &&
 			localSettings.permissions &&
-			localSettings.permissions["allow"]
+			localSettings.permissions.allow
 		) {
-			for (const command of localSettings.permissions["allow"]) {
-				console.log(localSettingsPath + "\t" + command);
+			for (const command of localSettings.permissions.allow) {
+				console.log(`${localSettingsPath}\t${command}`);
 			}
 		}
 

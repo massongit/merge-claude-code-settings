@@ -78,16 +78,39 @@ function main(showAllowCommands: boolean = false) {
   // Home directory path
   const homeDirPath: string = homedir();
 
+  const claudeJSONPath = join(homeDirPath, ".claude.json");
+  let claudeJSON: { projects?: Record<string, unknown> };
+
   // ~/.claude.json
-  const claudeJSON: { projects?: Record<string, unknown> } = JSON.parse(
-    readFileSync(join(homeDirPath, ".claude.json"), "utf-8"),
-  );
+  try {
+    claudeJSON = JSON.parse(readFileSync(claudeJSONPath, "utf-8"));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(
+      `Failed to read or parse Claude configuration file "${claudeJSONPath}". ` +
+        "Please ensure the file exists and contains valid JSON.",
+    );
+    console.error(`Underlying error: ${message}`);
+    process.exit(1);
+  }
 
   // Global settings file path
   const settingsPath = join(homeDirPath, ".claude", "settings.json");
 
+  let settings: Settings;
+
   // Global settings (base for merging)
-  let settings: Settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
+  try {
+    settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(
+      `Failed to read or parse global settings file "${settingsPath}". ` +
+        "Please ensure the file exists and contains valid JSON.",
+    );
+    console.error(`Underlying error: ${message}`);
+    process.exit(1);
+  }
 
   // Process each project's local settings
   for (const projectPath of Object.keys(claudeJSON.projects ?? {})) {
@@ -130,7 +153,16 @@ function main(showAllowCommands: boolean = false) {
   }
 
   // Write merged settings back to global settings file
-  writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  try {
+    writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  } catch (error) {
+    console.error(
+      `Failed to write merged settings to "${settingsPath}". ` +
+        "Please check file permissions, available disk space, and that the directory exists.",
+    );
+    console.error(`Underlying error: ${(error as Error).message}`);
+    process.exit(1);
+  }
 }
 
 // Parse command line arguments

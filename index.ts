@@ -16,6 +16,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { version } from "./version";
 
 /**
  * Type definition for permissions
@@ -167,7 +168,7 @@ function main(showAllowCommands: boolean = false) {
 
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
-  .version("0.1.0")
+  .version(version)
   .help()
   .option("show-allow-commands", {
     type: "boolean",

@@ -89,6 +89,13 @@ Special handling:
 - **Runtime:** Bun
 - **Main Dependencies:** Node.js standard library (fs, path, os)
 
+## Development
+
+### Setup
+
+Install `pre-commit` by following the instructions at <https://pre-commit.com/>.
+This will automatically check for credentials in your commits.
+
 ## Code Formatting
 
 ```bash

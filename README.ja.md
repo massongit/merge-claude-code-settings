@@ -90,6 +90,13 @@ node dist/index.js --show-allow-commands
 - **ランタイム:** Bun
 - **主な依存関係:** Node.js 標準ライブラリ（fs, path, os）
 
+## 開発
+
+### 設定
+
+<https://pre-commit.com/> の手順に従って `pre-commit` をインストールします。
+これにより、コミット時にクレデンシャルが含まれていないかの検査が行われるようになります。
+
 ## コード整形
 
 ```bash

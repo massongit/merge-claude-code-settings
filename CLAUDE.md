@@ -25,6 +25,13 @@ node dist/index.js --show-allow-commands
 bun run fix
 ```
 
+## Development
+
+### Setup
+
+Install `pre-commit` by following the instructions at <https://pre-commit.com/>.
+This will automatically check for credentials in your commits.
+
 ## Architecture
 
 ### Main Script: `index.ts`

@@ -58,9 +58,9 @@ node dist/index.js --show-allow-commands
 
 出力例：
 
-```
-/path/to/project/.claude/settings.local.json	Bash(git status)
-/path/to/project/.claude/settings.local.json	Bash(npm run build)
+```text
+/path/to/project/.claude/settings.local.json    Bash(git status)
+/path/to/project/.claude/settings.local.json    Bash(npm run build)
 ```
 
 ## マージロジック

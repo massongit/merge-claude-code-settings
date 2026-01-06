@@ -16,7 +16,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { version } from "./version";
+import { version } from "./version.js";
 
 /**
  * Type definition for permissions
@@ -87,12 +87,10 @@ function main(showAllowCommands: boolean = false) {
     claudeJSON = JSON.parse(readFileSync(claudeJSONPath, "utf-8"));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(
+    throw new Error(
       `Failed to read or parse Claude configuration file "${claudeJSONPath}". ` +
-        "Please ensure the file exists and contains valid JSON.",
+        `Please ensure the file exists and contains valid JSON: ${message}`,
     );
-    console.error(`Underlying error: ${message}`);
-    process.exit(1);
   }
 
   // Global settings file path
@@ -105,12 +103,10 @@ function main(showAllowCommands: boolean = false) {
     settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(
+    throw new Error(
       `Failed to read or parse global settings file "${settingsPath}". ` +
-        "Please ensure the file exists and contains valid JSON.",
+        `Please ensure the file exists and contains valid JSON: ${message}`,
     );
-    console.error(`Underlying error: ${message}`);
-    process.exit(1);
   }
 
   // Process each project's local settings
@@ -157,12 +153,10 @@ function main(showAllowCommands: boolean = false) {
   try {
     writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
   } catch (error) {
-    console.error(
+    throw new Error(
       `Failed to write merged settings to "${settingsPath}". ` +
-        "Please check file permissions, available disk space, and that the directory exists.",
+        `Please check file permissions, available disk space, and that the directory exists: ${(error as Error).message}`,
     );
-    console.error(`Underlying error: ${(error as Error).message}`);
-    process.exit(1);
   }
 }
 

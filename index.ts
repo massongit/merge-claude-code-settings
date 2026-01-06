@@ -35,6 +35,19 @@ interface Settings {
 }
 
 /**
+ * Type guard to validate if a value is a string array
+ * @param value - Value to check
+ * @returns true if value is an array of strings
+ */
+function isStringArray(value: unknown): value is string[] {
+  return (
+    value !== undefined &&
+    Array.isArray(value) &&
+    value.every((i) => typeof i === "string")
+  );
+}
+
+/**
  * Merge two settings objects
  *
  * The permissions field combines arrays and removes duplicates
@@ -55,15 +68,27 @@ function mergeSettings(settings: Settings, localSettings: Settings): Settings {
 
   // Process each permissions key (e.g., "allow", "deny")
   for (const key of new Set(permissionsList.flatMap(Object.keys))) {
+    const permissionSet: Set<string> = new Set();
+
+    // Collect permission values from both settings, validating they are string arrays
+    for (const permissions of permissionsList) {
+      const commands: string[] | undefined = permissions[key];
+
+      if (!isStringArray(commands)) {
+        continue;
+      }
+
+      for (const command of commands) {
+        permissionSet.add(command);
+      }
+    }
+
     if (mergedSettings.permissions === undefined) {
       mergedSettings.permissions = {};
     }
 
-    // Get arrays for the key from both settings, combine and remove duplicates
-    // Finally sort to ensure consistent ordering
-    mergedSettings.permissions[key] = Array.from(
-      new Set(permissionsList.flatMap((p) => p[key] ?? [])),
-    ).sort();
+    // Combine and remove duplicates, then sort to ensure consistent ordering
+    mergedSettings.permissions[key] = Array.from(permissionSet).sort();
   }
 
   return mergedSettings;
@@ -135,13 +160,13 @@ function main(showAllowCommands: boolean = false) {
     }
 
     // Debug mode: Display allowed commands
-    if (
-      showAllowCommands &&
-      localSettings.permissions &&
-      localSettings.permissions.allow
-    ) {
-      for (const command of localSettings.permissions.allow) {
-        console.log(`${localSettingsPath}\t${command}`);
+    if (showAllowCommands && localSettings.permissions) {
+      const allowCommands: string[] | undefined =
+        localSettings.permissions["allow"];
+      if (isStringArray(allowCommands)) {
+        for (const command of allowCommands) {
+          console.log(`${localSettingsPath}\t${command}`);
+        }
       }
     }
 

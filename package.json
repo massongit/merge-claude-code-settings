@@ -4,7 +4,10 @@
   "description": "A TypeScript utility that merges Claude Code settings from multiple project-specific configuration files into the global settings file",
   "author": "Masaya Suzuki <suzukimasaya428@gmail.com>",
   "license": "MIT",
-  "repository": "https://github.com/massongit/merge-claude-code-settings",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/massongit/merge-claude-code-settings.git"
+  },
   "keywords": [
     "claude",
     "cli",

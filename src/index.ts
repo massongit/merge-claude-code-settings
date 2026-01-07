@@ -17,8 +17,8 @@ import { join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { version } from "./version.js";
-import { mergeSettings } from "./lib";
-import type { MergeSettingsResult, Settings } from "./lib";
+import { mergeSettings } from "./lib.js";
+import type { MergeSettingsResult, Settings } from "./lib.js";
 
 /**
  * Main process

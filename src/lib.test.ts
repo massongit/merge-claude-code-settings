@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from "@jest/globals";
-import { isStringArray, mergeSettings } from "./lib";
-import type { MergeSettingsResult } from "./lib";
+import { isStringArray, mergeSettings } from "./lib.js";
+import type { MergeSettingsResult } from "./lib.js";
 
 describe("isStringArray", () => {
   describe("valid string arrays", () => {

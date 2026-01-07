@@ -1,17 +1,25 @@
 # merge-claude-code-settings
 
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+
 [English](./README.md) | 日本語
 
-Claude Code の複数プロジェクトの設定をグローバル設定ファイルに統合する TypeScript ツールです。
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
+
+Claude Codeの複数プロジェクトの設定を統合するTypeScriptツールです。
+グローバル設定ファイルに統合します。
 
 ## 背景
 
-Claude Code では、特定のコマンド実行を今後ユーザーへの確認なしに許可する機能があります。
+Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認なしに許可する機能があります。
 この許可設定は各プロジェクトのローカル設定ファイル（`.claude/settings.local.json`）に保存されます。
 
-**問題点：** プロジェクトごとに個別に許可設定を行う必要があり、同じコマンドを複数プロジェクトで毎回許可するのは非効率です。
+**問題点：** プロジェクトごとに個別に許可設定を行う必要があります。
+同じコマンドを複数プロジェクトで毎回許可するのは非効率です。
 
-**解決策：** 各プロジェクトの設定をグローバル設定ファイル（`~/.claude/settings.json`）に統合することで、全プロジェクトで共通の許可設定を利用できます。
+**解決策：** 各プロジェクトの設定を統合します。
+グローバル設定ファイル（`~/.claude/settings.json`）にマージされます。
+これにより、全プロジェクトで共通の許可設定を利用できます。
 
 ## 機能
 
@@ -30,19 +38,19 @@ bun run build
 
 ### 2. 実行
 
-開発時（TypeScriptを直接実行）：
+開発時（TypeScriptを直接実行）。
 
 ```bash
 bun run dev
 ```
 
-ビルド後（コンパイル済みJavaScriptを実行）：
+ビルド後（コンパイル済みJavaScriptを実行）。
 
 ```bash
 node dist/index.js
 ```
 
-実行すると：
+実行すると次の処理を行います。
 
 1. `~/.claude.json` から登録済みのプロジェクト一覧を取得
 2. 各プロジェクトの `.claude/settings.local.json` を読み込み
@@ -50,13 +58,13 @@ node dist/index.js
 
 ### デバッグモード
 
-`--show-allow-commands` オプションを付与すると、各プロジェクトで許可されているコマンドを標準出力します：
+`--show-allow-commands` オプションを付与すると、各プロジェクトで許可されているコマンドを標準出力します。
 
 ```bash
 node dist/index.js --show-allow-commands
 ```
 
-出力例：
+出力例。
 
 <!-- markdownlint-disable MD010 -->
 
@@ -75,7 +83,7 @@ node dist/index.js --show-allow-commands
 
 ### `permissions` フィールド
 
-特別な処理を行います：
+特別な処理を行います。
 
 - 全プロジェクトの配列を結合
 - 重複を削除
@@ -83,7 +91,7 @@ node dist/index.js --show-allow-commands
 
 **例：**
 
-- グローバル設定: `{"permissions": {"allow": ["cmd1", "cmd2"]}}`
+- グローバル設定： `{"permissions": {"allow": ["cmd1", "cmd2"]}}`
 - プロジェクトA: `{"permissions": {"allow": ["cmd2", "cmd3"]}}`
 - プロジェクトB: `{"permissions": {"allow": ["cmd4"]}}`
 - **結果:** `{"permissions": {"allow": ["cmd1", "cmd2", "cmd3", "cmd4"]}}`
@@ -92,7 +100,7 @@ node dist/index.js --show-allow-commands
 
 - **言語:** TypeScript
 - **ランタイム:** Bun
-- **主な依存関係:** Node.js 標準ライブラリ（fs, path, os）
+- **主な依存関係:** Node.js標準ライブラリ（fs, path, os）
 
 ## 開発
 
@@ -107,4 +115,4 @@ node dist/index.js --show-allow-commands
 bun run fix
 ```
 
-Prettier でコードをフォーマットします。
+Prettierでコードをフォーマットします。

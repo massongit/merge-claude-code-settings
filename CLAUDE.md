@@ -1,10 +1,14 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Project Overview
 
-This is a TypeScript utility that merges Claude Code settings from multiple project-specific configuration files into the global settings file. When Claude Code allows certain commands to run without user confirmation, these permissions are stored in project-local `.claude/settings.local.json` files. This tool consolidates those settings into the global `~/.claude/settings.json` file.
+This is a TypeScript utility that merges Claude Code settings from multiple projects.
+It consolidates settings into the global settings file.
+When Claude Code allows certain commands to run without confirmation, permissions are stored.
+They are kept in project-local `.claude/settings.local.json` files.
+This tool merges those settings into the global `~/.claude/settings.json` file.
 
 ## Build and Run Commands
 
@@ -51,12 +55,13 @@ The `mergeSettings()` function implements special handling for the `permissions`
 
 - **Regular fields**: Overwritten by local settings (last project wins)
 - **`permissions` field**: Arrays are combined and deduplicated
-  - Example: If global has `["cmd1", "cmd2"]` and local has `["cmd2", "cmd3"]`, result is `["cmd1", "cmd2", "cmd3"]`
+  - Example: Global `["cmd1", "cmd2"]` + Local `["cmd2", "cmd3"]` = `["cmd1", "cmd2", "cmd3"]`
   - Final array is sorted alphabetically for consistency
 
 ### Debug Mode
 
-When run with `--show-allow-commands` flag, the script prints each allowed command from project settings to stdout in the format: `<path-to-settings.local.json>\t<command>`
+When run with `--show-allow-commands` flag, the script prints each allowed command to stdout.
+Format: `<path-to-settings.local.json>\t<command>`
 
 ## Type Definitions
 

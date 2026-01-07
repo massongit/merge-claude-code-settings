@@ -2,21 +2,26 @@
 
 English | [日本語](./README.ja.md)
 
-A TypeScript utility that merges Claude Code settings from multiple project-specific configuration files into the global settings file.
+A TypeScript utility that merges Claude Code settings from multiple projects.
+It consolidates them into the global settings file.
 
 ## Background
 
-Claude Code allows certain commands to run without user confirmation. These permissions are stored in project-local `.claude/settings.local.json` files.
+Claude Code allows certain commands to run without user confirmation.
+These permissions are stored in project-local `.claude/settings.local.json` files.
 
-**Problem:** You need to grant permissions individually for each project, which is inefficient when you want to allow the same commands across multiple projects.
+**Problem:** You need to grant permissions individually for each project.
+This is inefficient when you want to allow the same commands across multiple projects.
 
-**Solution:** This tool consolidates settings from all project-local files into the global `~/.claude/settings.json` file, enabling common permissions across all projects.
+**Solution:** This tool consolidates settings from all project-local files.
+They are merged into the global `~/.claude/settings.json` file.
+This enables common permissions across all projects.
 
 ## Features
 
 - Automatically detects `.claude/settings.local.json` from multiple projects
 - Merges into global settings (`~/.claude/settings.json`)
-- Combines and deduplicates arrays in the `permissions` field
+- Combines arrays in the `permissions` field and automatically removes duplicates
 - Debug output for allowed commands
 
 ## Usage
@@ -29,19 +34,19 @@ bun run build
 
 ### 2. Run
 
-Development mode (run TypeScript directly):
+Development mode (run TypeScript directly).
 
 ```bash
 bun run dev
 ```
 
-Production mode (run compiled JavaScript):
+Production mode (run compiled JavaScript).
 
 ```bash
 node dist/index.js
 ```
 
-When executed:
+The following operations are performed.
 
 1. Reads the list of registered projects from `~/.claude.json`
 2. Loads `.claude/settings.local.json` from each project
@@ -49,13 +54,13 @@ When executed:
 
 ### Debug Mode
 
-Use the `--show-allow-commands` option to print allowed commands to stdout:
+Use the `--show-allow-commands` option to print allowed commands to stdout.
 
 ```bash
 node dist/index.js --show-allow-commands
 ```
 
-Example output:
+Example output.
 
 <!-- markdownlint-disable MD010 -->
 
@@ -74,7 +79,7 @@ Overwritten by settings loaded later (last project wins).
 
 ### `permissions` Field
 
-Special handling:
+Special handling is applied.
 
 - Combines arrays from all projects
 - Removes duplicates

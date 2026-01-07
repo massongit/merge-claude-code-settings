@@ -104,14 +104,15 @@ function main(showAllowCommands: boolean = false) {
   // Home directory path
   const homeDirPath: string = homedir();
 
-  const claudeJSONPath = join(homeDirPath, ".claude.json");
+  const claudeJSONPath: string = join(homeDirPath, ".claude.json");
   let claudeJSON: { projects?: Record<string, unknown> };
 
   // ~/.claude.json
   try {
     claudeJSON = JSON.parse(readFileSync(claudeJSONPath, "utf-8"));
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message: string =
+      error instanceof Error ? error.message : String(error);
     throw new Error(
       `Failed to read or parse Claude configuration file "${claudeJSONPath}". ` +
         `Please ensure the file exists and contains valid JSON: ${message}`,
@@ -119,7 +120,7 @@ function main(showAllowCommands: boolean = false) {
   }
 
   // Global settings file path
-  const settingsPath = join(homeDirPath, ".claude", "settings.json");
+  const settingsPath: string = join(homeDirPath, ".claude", "settings.json");
 
   let settings: Settings;
 
@@ -127,7 +128,8 @@ function main(showAllowCommands: boolean = false) {
   try {
     settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message: string =
+      error instanceof Error ? error.message : String(error);
     throw new Error(
       `Failed to read or parse global settings file "${settingsPath}". ` +
         `Please ensure the file exists and contains valid JSON: ${message}`,
@@ -154,7 +156,8 @@ function main(showAllowCommands: boolean = false) {
     try {
       localSettings = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message: string =
+        error instanceof Error ? error.message : String(error);
       throw new Error(
         `Failed to parse JSON in local settings file "${localSettingsPath}": ${message}`,
       );
@@ -179,7 +182,8 @@ function main(showAllowCommands: boolean = false) {
   try {
     writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message: string =
+      error instanceof Error ? error.message : String(error);
     throw new Error(
       `Failed to write merged settings to "${settingsPath}". ` +
         `Please check file permissions, available disk space, and that the directory exists: ${message}`,

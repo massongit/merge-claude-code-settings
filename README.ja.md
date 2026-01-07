@@ -2,11 +2,11 @@
 
 [English](./README.md) | 日本語
 
-Claude Code の複数プロジェクトの設定をグローバル設定ファイルに統合する TypeScript ツールです。
+Claude Codeの複数プロジェクトの設定をグローバル設定ファイルに統合するTypeScriptツールです。
 
 ## 背景
 
-Claude Code では、特定のコマンド実行を今後ユーザーへの確認なしに許可する機能があります。
+Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認なしに許可する機能があります。
 この許可設定は各プロジェクトのローカル設定ファイル（`.claude/settings.local.json`）に保存されます。
 
 **問題点：** プロジェクトごとに個別に許可設定を行う必要があり、同じコマンドを複数プロジェクトで毎回許可するのは非効率です。
@@ -83,7 +83,7 @@ node dist/index.js --show-allow-commands
 
 **例：**
 
-- グローバル設定: `{"permissions": {"allow": ["cmd1", "cmd2"]}}`
+- グローバル設定： `{"permissions": {"allow": ["cmd1", "cmd2"]}}`
 - プロジェクトA: `{"permissions": {"allow": ["cmd2", "cmd3"]}}`
 - プロジェクトB: `{"permissions": {"allow": ["cmd4"]}}`
 - **結果:** `{"permissions": {"allow": ["cmd1", "cmd2", "cmd3", "cmd4"]}}`
@@ -92,7 +92,7 @@ node dist/index.js --show-allow-commands
 
 - **言語:** TypeScript
 - **ランタイム:** Bun
-- **主な依存関係:** Node.js 標準ライブラリ（fs, path, os）
+- **主な依存関係:** Node.js標準ライブラリ（fs, path, os）
 
 ## 開発
 
@@ -107,4 +107,4 @@ node dist/index.js --show-allow-commands
 bun run fix
 ```
 
-Prettier でコードをフォーマットします。
+Prettierでコードをフォーマットします。

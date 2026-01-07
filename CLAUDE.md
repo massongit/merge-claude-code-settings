@@ -39,7 +39,8 @@ This will automatically check for credentials in your commits.
 ### Documentation
 
 **IMPORTANT**: Keep `README.md` and `README.ja.md` in sync.
-When updating one file, always update the other to maintain consistency between English and Japanese documentation.
+When updating one file, always update the other.
+This maintains consistency between English and Japanese documentation.
 
 ## Architecture
 

@@ -44,7 +44,7 @@ bun run dev
 node dist/index.js
 ```
 
-実行すると以下の処理を行います。
+実行すると次の処理を行います。
 
 1. `~/.claude.json` から登録済みのプロジェクト一覧を取得
 2. 各プロジェクトの `.claude/settings.local.json` を読み込み

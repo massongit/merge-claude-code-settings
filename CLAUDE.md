@@ -36,6 +36,11 @@ bun run fix
 Install `pre-commit` by following the instructions at <https://pre-commit.com/>.
 This will automatically check for credentials in your commits.
 
+### Documentation
+
+**IMPORTANT**: Keep `README.md` and `README.ja.md` in sync.
+When updating one file, always update the other to maintain consistency between English and Japanese documentation.
+
 ## Architecture
 
 ### Main Script: `index.ts`

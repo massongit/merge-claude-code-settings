@@ -105,6 +105,19 @@ Special handling is applied.
 Install `pre-commit` by following the instructions at <https://pre-commit.com/>.
 This will automatically check for credentials in your commits.
 
+### Testing
+
+Run the test suite to verify the functionality of library functions.
+
+```bash
+bun test
+```
+
+This runs 40 comprehensive tests covering:
+
+- `isStringArray`: Type guard validation (21 tests)
+- `mergeSettings`: Settings merge logic (19 tests)
+
 ## Code Formatting
 
 ```bash

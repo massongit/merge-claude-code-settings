@@ -109,6 +109,19 @@ node dist/index.js --show-allow-commands
 <https://pre-commit.com/> の手順に従って `pre-commit` をインストールします。
 これにより、コミット時にクレデンシャルが含まれていないかの検査が行われるようになります。
 
+### テスト
+
+ライブラリ関数の機能を検証するために、テストスイートを実行します。
+
+```bash
+bun test
+```
+
+40の包括的なテストが実行されます。
+
+- `isStringArray`: 型ガード検証（21テスト）
+- `mergeSettings`: 設定マージロジック（19テスト）
+
 ## コード整形
 
 ```bash

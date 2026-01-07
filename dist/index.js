@@ -16,60 +16,14 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { mergeSettings } from "./lib.js";
 import { version } from "./version.js";
 /**
- * Type guard to validate if a value is a string array
- * @param value - Value to check
- * @returns true if value is an array of strings
- */
-function isStringArray(value) {
-    return (value !== undefined &&
-        Array.isArray(value) &&
-        value.every((i) => typeof i === "string"));
-}
-/**
- * Merge two settings objects
- *
- * The permissions field combines arrays and removes duplicates
- * Other fields are overwritten by localSettings values
- *
- * @param settings - Base settings
- * @param localSettings - Local settings to merge
- * @returns Merged settings
- */
-function mergeSettings(settings, localSettings) {
-    // Basic object merge (overwritten by localSettings)
-    const mergedSettings = { ...settings, ...localSettings };
-    // Extract permissions from both settings (empty object if not present)
-    const permissionsList = [settings, localSettings].map(({ permissions }) => permissions ?? {});
-    // Process each permissions key (e.g., "allow", "deny")
-    for (const key of new Set(permissionsList.flatMap(Object.keys))) {
-        const permissionSet = new Set();
-        // Collect permission values from both settings, validating they are string arrays
-        for (const permissions of permissionsList) {
-            const commands = permissions[key];
-            if (!isStringArray(commands)) {
-                continue;
-            }
-            for (const command of commands) {
-                permissionSet.add(command);
-            }
-        }
-        if (mergedSettings.permissions === undefined) {
-            mergedSettings.permissions = {};
-        }
-        // Combine and remove duplicates, then sort to ensure consistent ordering
-        mergedSettings.permissions[key] = Array.from(permissionSet).sort();
-    }
-    return mergedSettings;
-}
-/**
  * Main process
- * Merge global settings with project-specific settings and save
  *
  * @param showAllowCommands - Output allowed commands
  */
-function main(showAllowCommands = false) {
+function main(showAllowCommands) {
     // Home directory path
     const homeDirPath = homedir();
     const claudeJSONPath = join(homeDirPath, ".claude.json");
@@ -95,6 +49,7 @@ function main(showAllowCommands = false) {
         throw new Error(`Failed to read or parse global settings file "${settingsPath}". ` +
             `Please ensure the file exists and contains valid JSON: ${message}`);
     }
+    const localSettingsRecord = {};
     // Process each project's local settings
     for (const projectPath of Object.keys(claudeJSON.projects ?? {})) {
         // Project local settings file path
@@ -103,30 +58,27 @@ function main(showAllowCommands = false) {
         if (!existsSync(localSettingsPath)) {
             continue;
         }
-        let localSettings;
         // Read local settings
         try {
-            localSettings = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
+            localSettingsRecord[localSettingsPath] = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
         }
         catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             throw new Error(`Failed to parse JSON in local settings file "${localSettingsPath}": ${message}`);
         }
-        // Debug mode: Display allowed commands
-        if (showAllowCommands && localSettings.permissions) {
-            const allowCommands = localSettings.permissions["allow"];
-            if (isStringArray(allowCommands)) {
-                for (const command of allowCommands) {
-                    console.log(`${localSettingsPath}\t${command}`);
-                }
-            }
-        }
-        // Merge local settings into global settings
-        settings = mergeSettings(settings, localSettings);
+    }
+    const mergeResult = mergeSettings({
+        settings,
+        localSettingsRecord,
+        showAllowCommands,
+    });
+    // Output allowed commands if collected
+    for (const allowCommand of mergeResult.mergedAllowCommands) {
+        console.log(allowCommand);
     }
     // Write merged settings back to global settings file
     try {
-        writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        writeFileSync(settingsPath, JSON.stringify(mergeResult.settings, null, 2));
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -141,6 +93,7 @@ const argv = yargs(hideBin(process.argv))
     .option("show-allow-commands", {
     type: "boolean",
     description: "Display allowed commands to stdout (for debugging)",
+    default: false,
 })
     .parseSync();
 try {

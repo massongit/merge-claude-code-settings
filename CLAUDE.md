@@ -4,9 +4,11 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Project Overview
 
-This is a TypeScript utility that merges Claude Code settings from multiple projects into the global settings file.
-When Claude Code allows certain commands to run without user confirmation, these permissions are stored in project-local `.claude/settings.local.json` files.
-This tool consolidates those settings into the global `~/.claude/settings.json` file.
+This is a TypeScript utility that merges Claude Code settings from multiple projects.
+It consolidates settings into the global settings file.
+When Claude Code allows certain commands to run without confirmation, permissions are stored.
+They are kept in project-local `.claude/settings.local.json` files.
+This tool merges those settings into the global `~/.claude/settings.json` file.
 
 ## Build and Run Commands
 

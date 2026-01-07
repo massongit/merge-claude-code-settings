@@ -2,7 +2,8 @@
 
 English | [日本語](./README.ja.md)
 
-A TypeScript utility that merges Claude Code settings from multiple projects into the global settings file.
+A TypeScript utility that merges Claude Code settings from multiple projects.
+It consolidates them into the global settings file.
 
 ## Background
 
@@ -12,7 +13,8 @@ These permissions are stored in project-local `.claude/settings.local.json` file
 **Problem:** You need to grant permissions individually for each project.
 This is inefficient when you want to allow the same commands across multiple projects.
 
-**Solution:** This tool consolidates settings from all project-local files into the global `~/.claude/settings.json` file.
+**Solution:** This tool consolidates settings from all project-local files.
+They are merged into the global `~/.claude/settings.json` file.
 This enables common permissions across all projects.
 
 ## Features

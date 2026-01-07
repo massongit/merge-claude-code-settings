@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/massongit/merge-claude-code-settings.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "claude",
     "cli",

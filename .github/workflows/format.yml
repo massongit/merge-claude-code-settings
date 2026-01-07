@@ -43,6 +43,8 @@ jobs:
           bun install
       - run: bun run fix
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
+      - run: bun run build
+        if: github.event_name != 'pull_request' || github.event.action != 'closed'
       - run: |
           echo "export const version: string = \"$(yq -r .version package.json)\";" > src/version.ts
         if: github.event_name != 'pull_request' || github.event.action != 'closed'

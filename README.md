@@ -19,7 +19,7 @@ This enables common permissions across all projects.
 
 - Automatically detects `.claude/settings.local.json` from multiple projects
 - Merges into global settings (`~/.claude/settings.json`)
-- Combines and deduplicates arrays in the `permissions` field
+- Combines arrays in the `permissions` field and automatically removes duplicates
 - Debug output for allowed commands
 
 ## Usage
@@ -44,7 +44,7 @@ Production mode (run compiled JavaScript).
 node dist/index.js
 ```
 
-When executed, it performs the following operations.
+The following operations are performed.
 
 1. Reads the list of registered projects from `~/.claude.json`
 2. Loads `.claude/settings.local.json` from each project

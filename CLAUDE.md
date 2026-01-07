@@ -25,6 +25,9 @@ node dist/index.js
 # Run with debug mode (prints allowed commands to stdout)
 node dist/index.js --show-allow-commands
 
+# Run tests
+bun test
+
 # Format code with Prettier
 bun run fix
 ```

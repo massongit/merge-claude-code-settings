@@ -44,7 +44,7 @@ This maintains consistency between English and Japanese documentation.
 
 ## Architecture
 
-### Main Script: `index.ts`
+### Main Script: `src/index.ts`
 
 The script performs the following operations:
 

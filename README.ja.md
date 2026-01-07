@@ -1,6 +1,10 @@
 # merge-claude-code-settings
 
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+
 [English](./README.md) | 日本語
+
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
 
 Claude Codeの複数プロジェクトの設定を統合するTypeScriptツールです。
 グローバル設定ファイルに統合します。

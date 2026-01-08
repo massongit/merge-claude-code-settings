@@ -21,6 +21,7 @@ This enables common permissions across all projects.
 
 - Automatically detects `.claude/settings.local.json` from multiple projects
 - Merges into global settings (`~/.claude/settings.json`)
+- Creates automatic backup (`~/.claude/settings.json.bak`) before writing
 - Combines arrays in the `permissions` field and automatically removes duplicates
 - Debug output for allowed commands
 
@@ -50,7 +51,9 @@ The following operations are performed.
 
 1. Reads the list of registered projects from `~/.claude.json`
 2. Loads `.claude/settings.local.json` from each project
-3. Merges settings and writes to `~/.claude/settings.json`
+3. Merges settings
+4. Creates a backup of the current settings (`~/.claude/settings.json.bak`)
+5. Writes the merged settings to `~/.claude/settings.json`
 
 ### Debug Mode
 
@@ -113,10 +116,10 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 40 comprehensive tests covering:
+This runs 39 comprehensive tests covering:
 
 - `isStringArray`: Type guard validation (21 tests)
-- `mergeSettings`: Settings merge logic (19 tests)
+- `mergeSettings`: Settings merge logic (18 tests)
 
 ## Code Formatting
 

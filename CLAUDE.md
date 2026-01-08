@@ -9,6 +9,7 @@ It consolidates settings into the global settings file.
 When Claude Code allows certain commands to run without confirmation, permissions are stored.
 They are kept in project-local `.claude/settings.local.json` files.
 This tool merges those settings into the global `~/.claude/settings.json` file.
+This enables common permissions across all projects.
 
 ## Build and Run Commands
 
@@ -25,7 +26,7 @@ node dist/index.js
 # Run with debug mode (prints allowed commands to stdout)
 node dist/index.js --show-allow-commands
 
-# Run tests
+# Run all tests (39 tests covering isStringArray and mergeSettings)
 bun test
 
 # Format code with Prettier
@@ -39,7 +40,7 @@ bun run fix
 Install `pre-commit` by following the instructions at <https://pre-commit.com/>.
 This will automatically check for credentials in your commits.
 
-### Documentation
+### Documentation Sync Requirement
 
 **IMPORTANT**: Keep `README.md` and `README.ja.md` in sync.
 When updating one file, always update the other.
@@ -47,32 +48,60 @@ This maintains consistency between English and Japanese documentation.
 
 ## Architecture
 
-### Main Script: `src/index.ts`
+### Processing Flow (`src/index.ts`)
 
-The script performs the following operations:
+The main script follows this sequence:
 
-1. Reads the global settings from `~/.claude/settings.json` as the base configuration
-2. Parses `~/.claude.json` to get the list of all registered Claude Code projects
-3. For each project path found in `~/.claude.json`:
-   - Looks for `.claude/settings.local.json` in that project directory
-   - If found, merges it into the global settings
-4. Writes the merged settings back to `~/.claude/settings.json`
+1. **Read base configuration**: Loads `~/.claude/settings.json` as the starting point
+2. **Discover projects**: Parses `~/.claude.json` to get all registered Claude Code projects
+3. **Collect local settings**: For each project path, reads `.claude/settings.local.json` (if it exists)
+4. **Merge settings**: Calls `mergeSettings()` from `src/lib.ts` to combine all settings
+5. **Backup original**: Copies `~/.claude/settings.json` to `~/.claude/settings.json.bak` using `copyFileSync()`
+6. **Write merged result**: Saves the merged settings back to `~/.claude/settings.json`
 
-### Settings Merge Logic
+### Merge Strategy (`src/lib.ts`)
 
-The `mergeSettings()` function implements special handling for the `permissions` field:
+The `mergeSettings()` function implements two different merge behaviors:
 
-- **Regular fields**: Overwritten by local settings (last project wins)
-- **`permissions` field**: Arrays are combined and deduplicated
-  - Example: Global `["cmd1", "cmd2"]` + Local `["cmd2", "cmd3"]` = `["cmd1", "cmd2", "cmd3"]`
-  - Final array is sorted alphabetically for consistency
+**Regular fields**: Last-write-wins (local settings overwrite global)
 
-### Debug Mode
+**`permissions` field**: Special array combining logic:
 
-When run with `--show-allow-commands` flag, the script prints each allowed command to stdout.
-Format: `<path-to-settings.local.json>\t<command>`
+- Combines arrays from all sources (global + all project-local files)
+- Removes duplicates using `Set`
+- Sorts alphabetically for consistency
+- Processes each permission type independently (e.g., "allow", "deny")
 
-## Type Definitions
+Example:
 
-- `Permissions`: Maps permission types (e.g., "allow") to arrays of command strings
-- `Settings`: Claude Code settings object with optional `permissions` field and other arbitrary fields
+```text
+Global: {"permissions": {"allow": ["cmd1", "cmd2"]}}
+Project A: {"permissions": {"allow": ["cmd2", "cmd3"]}}
+Project B: {"permissions": {"allow": ["cmd4"]}}
+Result: {"permissions": {"allow": ["cmd1", "cmd2", "cmd3", "cmd4"]}}
+```
+
+### Backup Mechanism
+
+Before writing merged settings, the script:
+
+1. Uses `copyFileSync()` to copy `~/.claude/settings.json` to `~/.claude/settings.json.bak`
+2. Only proceeds with the merge if backup succeeds
+3. Preserves the exact original file including formatting
+
+This ensures you can recover the original settings if needed.
+
+### Debug Output
+
+When `--show-allow-commands` is enabled:
+
+- Collects all "allow" permission commands during merge
+- Outputs format: `<local-settings-path>\t<command>`
+- Useful for auditing which projects contribute which permissions
+
+## Key Type Definitions
+
+- `Permissions`: `{[key: string]: string[] | undefined}` - Maps permission types to command arrays
+- `Settings`: Object with optional `permissions` field and arbitrary additional fields
+- `MergeSettingsResult`: Contains merged `settings` and `mergedAllowCommands` array
+- `isStringArray()`: Type guard that validates `unknown` values are `string[]`

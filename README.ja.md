@@ -25,6 +25,7 @@ Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認
 
 - 複数プロジェクトの `.claude/settings.local.json` を自動検出
 - グローバル設定 (`~/.claude/settings.json`) にマージ
+- 書き込み前に自動バックアップを作成 (`~/.claude/settings.json.bak`)
 - `permissions` フィールドは配列を結合して重複を自動削除
 - 実行時に許可されたコマンドをデバッグ出力
 
@@ -54,7 +55,9 @@ node dist/index.js
 
 1. `~/.claude.json` から登録済みのプロジェクト一覧を取得
 2. 各プロジェクトの `.claude/settings.local.json` を読み込み
-3. グローバル設定にマージして `~/.claude/settings.json` に上書き保存
+3. グローバル設定にマージ
+4. 現在の設定のバックアップを作成 (`~/.claude/settings.json.bak`)
+5. マージ済み設定を `~/.claude/settings.json` に書き込み
 
 ### デバッグモード
 
@@ -117,10 +120,10 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-40の包括的なテストが実行されます。
+39の包括的なテストが実行されます。
 
 - `isStringArray`: 型ガード検証（21テスト）
-- `mergeSettings`: 設定マージロジック（19テスト）
+- `mergeSettings`: 設定マージロジック（18テスト）
 
 ## コード整形
 

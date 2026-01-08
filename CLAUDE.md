@@ -74,7 +74,7 @@ The `mergeSettings()` function implements two different merge behaviors:
 
 Example:
 
-```
+```text
 Global: {"permissions": {"allow": ["cmd1", "cmd2"]}}
 Project A: {"permissions": {"allow": ["cmd2", "cmd3"]}}
 Project B: {"permissions": {"allow": ["cmd4"]}}

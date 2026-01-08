@@ -27,24 +27,13 @@ This enables common permissions across all projects.
 
 ## Usage
 
-### 1. Build
+Run directly with npx (no installation required).
 
 ```bash
-bun run build
-```
+npx merge-claude-code-settings
 
-### 2. Run
-
-Development mode (run TypeScript directly).
-
-```bash
-bun run dev
-```
-
-Production mode (run compiled JavaScript).
-
-```bash
-node dist/index.js
+# Debug mode (print allowed commands to stdout)
+npx merge-claude-code-settings --show-allow-commands
 ```
 
 The following operations are performed.
@@ -55,15 +44,7 @@ The following operations are performed.
 4. Creates a backup of the current settings (`~/.claude/settings.json.bak`)
 5. Writes the merged settings to `~/.claude/settings.json`
 
-### Debug Mode
-
-Use the `--show-allow-commands` option to print allowed commands to stdout.
-
-```bash
-node dist/index.js --show-allow-commands
-```
-
-Example output.
+Example output with `--show-allow-commands` option.
 
 <!-- markdownlint-disable MD010 -->
 
@@ -102,6 +83,24 @@ Special handling is applied.
 - **Main Dependencies:** Node.js standard library (fs, path, os)
 
 ## Development
+
+### For Developers
+
+Build and run from source.
+
+```bash
+# Build TypeScript to JavaScript
+bun run build
+
+# Run directly with Bun (development mode)
+bun run dev
+
+# Run compiled JavaScript
+node dist/index.js
+
+# Debug mode
+node dist/index.js --show-allow-commands
+```
 
 ### Setup
 

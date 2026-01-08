@@ -11,7 +11,7 @@
  * --show-allow-commands: Display allowed commands to stdout (for debugging)
  */
 
-import { readFileSync, existsSync, writeFileSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, copyFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import yargs from "yargs";
@@ -100,6 +100,20 @@ function main(showAllowCommands: boolean) {
   // Output allowed commands if collected
   for (const allowCommand of mergeResult.mergedAllowCommands) {
     console.log(allowCommand);
+  }
+
+  const backupSettingsPath: string = `${settingsPath}.bak`;
+
+  // Backup current settings file before writing
+  try {
+    copyFileSync(settingsPath, backupSettingsPath);
+  } catch (error) {
+    const message: string =
+      error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to create backup of settings file at "${backupSettingsPath}". ` +
+        `Please check file permissions, available disk space, and that the directory exists: ${message}`,
+    );
   }
 
   // Write merged settings back to global settings file

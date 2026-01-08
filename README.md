@@ -2,6 +2,10 @@
 
 English | [日本語](./README.ja.md)
 
+## ⚠️ Important ⚠️
+
+**This version contains only the minimum content necessary to set up npmjs Trusted Publishing.**
+
 A TypeScript utility that merges Claude Code settings from multiple projects.
 It consolidates them into the global settings file.
 

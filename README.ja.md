@@ -6,10 +6,6 @@
 
 <!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
 
-## ⚠️重要⚠️
-
-**本バージョンにはnpmjsのTrusted Publishingを設定するために必要な最低限の内容しか含まれていません。**
-
 Claude Codeの複数プロジェクトの設定を統合するTypeScriptツールです。
 グローバル設定ファイルに統合します。
 

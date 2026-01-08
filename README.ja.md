@@ -31,24 +31,13 @@ Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認
 
 ## 使い方
 
-### 1. ビルド
+npxで直接実行できます（インストール不要）。
 
 ```bash
-bun run build
-```
+npx merge-claude-code-settings
 
-### 2. 実行
-
-開発時（TypeScriptを直接実行）。
-
-```bash
-bun run dev
-```
-
-ビルド後（コンパイル済みJavaScriptを実行）。
-
-```bash
-node dist/index.js
+# デバッグモード（各プロジェクトで許可されているコマンドを標準出力）
+npx merge-claude-code-settings --show-allow-commands
 ```
 
 実行すると次の処理を行います。
@@ -59,15 +48,7 @@ node dist/index.js
 4. 現在の設定のバックアップを作成 (`~/.claude/settings.json.bak`)
 5. マージ済み設定を `~/.claude/settings.json` に書き込み
 
-### デバッグモード
-
-`--show-allow-commands` オプションを付与すると、各プロジェクトで許可されているコマンドを標準出力します。
-
-```bash
-node dist/index.js --show-allow-commands
-```
-
-出力例。
+`--show-allow-commands` オプション使用時の出力例。
 
 <!-- markdownlint-disable MD010 -->
 
@@ -106,6 +87,24 @@ node dist/index.js --show-allow-commands
 - **主な依存関係:** Node.js標準ライブラリ（fs, path, os）
 
 ## 開発
+
+### 開発者向け
+
+ソースからビルドして実行。
+
+```bash
+# TypeScript を JavaScript にビルド
+bun run build
+
+# Bun で直接実行（開発モード）
+bun run dev
+
+# コンパイル済み JavaScript を実行
+node dist/index.js
+
+# デバッグモード
+node dist/index.js --show-allow-commands
+```
 
 ### 設定
 

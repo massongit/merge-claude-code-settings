@@ -66,12 +66,14 @@ The `mergeSettings()` function implements two different merge behaviors:
 **Regular fields**: Last-write-wins (local settings overwrite global)
 
 **`permissions` field**: Special array combining logic:
+
 - Combines arrays from all sources (global + all project-local files)
 - Removes duplicates using `Set`
 - Sorts alphabetically for consistency
 - Processes each permission type independently (e.g., "allow", "deny")
 
 Example:
+
 ```
 Global: {"permissions": {"allow": ["cmd1", "cmd2"]}}
 Project A: {"permissions": {"allow": ["cmd2", "cmd3"]}}
@@ -82,6 +84,7 @@ Result: {"permissions": {"allow": ["cmd1", "cmd2", "cmd3", "cmd4"]}}
 ### Backup Mechanism
 
 Before writing merged settings, the script:
+
 1. Uses `copyFileSync()` to copy `~/.claude/settings.json` to `~/.claude/settings.json.bak`
 2. Only proceeds with the merge if backup succeeds
 3. Preserves the exact original file including formatting
@@ -91,6 +94,7 @@ This ensures you can recover the original settings if needed.
 ### Debug Output
 
 When `--show-allow-commands` is enabled:
+
 - Collects all "allow" permission commands during merge
 - Outputs format: `<local-settings-path>\t<command>`
 - Useful for auditing which projects contribute which permissions

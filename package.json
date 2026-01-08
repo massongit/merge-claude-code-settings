@@ -1,6 +1,6 @@
 {
   "name": "merge-claude-code-settings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A TypeScript utility that merges Claude Code settings from multiple project-specific configuration files into the global settings file",
   "author": "Masaya Suzuki <suzukimasaya428@gmail.com>",
   "license": "MIT",

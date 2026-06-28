@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: lts/*
           registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
       - run: npm publish --provenance
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}

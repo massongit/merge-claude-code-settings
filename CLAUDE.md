@@ -12,4 +12,5 @@ See `README.md` for project overview, build/run/test commands, and setup instruc
 When updating one file, always update the other.
 This maintains consistency between English and Japanese documentation.
 
-See `src/index.ts` and `src/lib.ts` for the processing flow, merge strategy, backup mechanism, and type definitions.
+See `src/index.ts` and `src/lib.ts` for details.
+These cover the processing flow, merge strategy, backup mechanism, and type definitions.

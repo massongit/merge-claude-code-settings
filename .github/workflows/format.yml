@@ -43,12 +43,12 @@ jobs:
       - name: Install
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
         run: bun install
+      - run: |
+          echo "export const version: string = \"$(yq -r .version package.json)\";" > src/version.ts
+        if: github.event_name != 'pull_request' || github.event.action != 'closed'
       - run: bun run fix
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
       - run: bun run build
-        if: github.event_name != 'pull_request' || github.event.action != 'closed'
-      - run: |
-          echo "export const version: string = \"$(yq -r .version package.json)\";" > src/version.ts
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
       - uses: dev-hato/actions-diff-pr-management@571be0d9572aaf77cdd315c12d6e73a1112910d7 # v2.2.6
         with:

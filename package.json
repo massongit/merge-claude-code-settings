@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/massongit/merge-claude-code-settings.git"
+    "url": "git+https://github.com/massongit/merge-claude-code-settings.git"
   },
   "publishConfig": {
     "access": "public"

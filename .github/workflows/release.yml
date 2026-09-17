@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - .github/workflows/release.yml
+      - scripts/release/release/create_release.ts
+      - .bun-version
       - package.json
 permissions:
   actions: read

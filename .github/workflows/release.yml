@@ -5,6 +5,9 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/release.yml
+      - scripts/release/release/create_release.ts
+      - .bun-version
       - package.json
 permissions:
   actions: read
@@ -55,9 +58,8 @@ jobs:
         if: env.CHANGED == 'true'
         with:
           node-version: lts/*
-          registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
-      - run: npm publish --provenance
+      - run: npm publish --provenance --registry https://registry.npmjs.org/
         if: env.CHANGED == 'true'
       - name: Create release
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0

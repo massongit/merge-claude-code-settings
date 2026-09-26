@@ -13,7 +13,7 @@
         "@octokit/plugin-rest-endpoint-methods": "18.0.0",
         "@proofdict/textlint-rule-proofdict": "3.1.2",
         "@textlint-ja/textlint-rule-no-insert-dropping-sa": "2.0.1",
-        "@types/node": "26.6.1",
+        "@types/node": "26.6.2",
         "@types/yargs": "17.0.35",
         "node-fetch": "2.6.12",
         "prettier": "3.9.8",
@@ -176,17 +176,17 @@
 
     "@jest/diff-sequences": ["@jest/diff-sequences@30.5.0", "https://npm.flatt.tech/@jest/diff-sequences/-/diff-sequences-30.5.0.tgz", {}, "sha512-OsqBjHXCn8cadasoAZBP6nWYvMsRhpMzGXTpxJ5aO04NlbdhIz+FVe3q49l0AwVhsz/cEmIpBes6gAFl1/dWQg=="],
 
-    "@jest/environment": ["@jest/environment@30.5.2", "", { "dependencies": { "@jest/fake-timers": "30.5.2", "@jest/types": "30.5.1", "@types/node": "*", "jest-mock": "30.5.2" } }, "sha512-nwFPOUMbmsjNNRCpnJpB9HbSZu4C07wDDds++5j+j1MezzPLxMPDdbdUVjr2o4RULDOValnDd70taPFI1EtxAg=="],
+    "@jest/environment": ["@jest/environment@30.5.2", "https://npm.flatt.tech/@jest/environment/-/environment-30.5.2.tgz", { "dependencies": { "@jest/fake-timers": "30.5.2", "@jest/types": "30.5.1", "@types/node": "*", "jest-mock": "30.5.2" } }, "sha512-nwFPOUMbmsjNNRCpnJpB9HbSZu4C07wDDds++5j+j1MezzPLxMPDdbdUVjr2o4RULDOValnDd70taPFI1EtxAg=="],
 
-    "@jest/expect": ["@jest/expect@30.5.2", "", { "dependencies": { "expect": "30.5.2", "jest-snapshot": "30.5.2" } }, "sha512-2E+1Pg6jJxbRjLNLpciC71iri/3qsKJL222/aXJEFwC0VdUSvfS+JZQQLEVjUYYc8t8pQu2MGE3cF2+bNTYRsg=="],
+    "@jest/expect": ["@jest/expect@30.5.2", "https://npm.flatt.tech/@jest/expect/-/expect-30.5.2.tgz", { "dependencies": { "expect": "30.5.2", "jest-snapshot": "30.5.2" } }, "sha512-2E+1Pg6jJxbRjLNLpciC71iri/3qsKJL222/aXJEFwC0VdUSvfS+JZQQLEVjUYYc8t8pQu2MGE3cF2+bNTYRsg=="],
 
-    "@jest/expect-utils": ["@jest/expect-utils@30.5.2", "", { "dependencies": { "@jest/get-type": "30.5.0" } }, "sha512-d/HOLSrJUlBIl6n3LzOa7cjW3xdePm5H5gQw2lixZ/0h157l9sw3mLblzFqnPcTbhDzhRQdBOX3A3KcG73nm5Q=="],
+    "@jest/expect-utils": ["@jest/expect-utils@30.5.2", "https://npm.flatt.tech/@jest/expect-utils/-/expect-utils-30.5.2.tgz", { "dependencies": { "@jest/get-type": "30.5.0" } }, "sha512-d/HOLSrJUlBIl6n3LzOa7cjW3xdePm5H5gQw2lixZ/0h157l9sw3mLblzFqnPcTbhDzhRQdBOX3A3KcG73nm5Q=="],
 
-    "@jest/fake-timers": ["@jest/fake-timers@30.5.2", "", { "dependencies": { "@jest/types": "30.5.1", "@sinonjs/fake-timers": "^15.4.0", "@types/node": "*", "jest-message-util": "30.5.1", "jest-mock": "30.5.2", "jest-util": "30.5.1" } }, "sha512-GKk0h0tKT5SpDPxDhPg3r9mm5s8/YCBzVNMOGdRiQXwUiMsjU10mVPlMaQstH6/cu50vOb8N9oQUMETHuwwxKw=="],
+    "@jest/fake-timers": ["@jest/fake-timers@30.5.2", "https://npm.flatt.tech/@jest/fake-timers/-/fake-timers-30.5.2.tgz", { "dependencies": { "@jest/types": "30.5.1", "@sinonjs/fake-timers": "^15.4.0", "@types/node": "*", "jest-message-util": "30.5.1", "jest-mock": "30.5.2", "jest-util": "30.5.1" } }, "sha512-GKk0h0tKT5SpDPxDhPg3r9mm5s8/YCBzVNMOGdRiQXwUiMsjU10mVPlMaQstH6/cu50vOb8N9oQUMETHuwwxKw=="],
 
     "@jest/get-type": ["@jest/get-type@30.5.0", "https://npm.flatt.tech/@jest/get-type/-/get-type-30.5.0.tgz", {}, "sha512-9/2VUPitAjmBzbvDvqrxmvB7BzWsBW0WmkkojX1ODuxX1NLGxx9gfaZpHB0z8DtJ9uhGNmZG/VXBhf8uO0OV8Q=="],
 
-    "@jest/globals": ["@jest/globals@30.5.2", "", { "dependencies": { "@jest/environment": "30.5.2", "@jest/expect": "30.5.2", "@jest/types": "30.5.1", "jest-mock": "30.5.2" } }, "sha512-62zfS+dL+M5aTNHXCNLyqD+j4oqxTIzDYrZbpqMP8Yn+gvlAGyzC6BSPNb1ZmFOakV1RtFYX/O3FCQXSWmQdgg=="],
+    "@jest/globals": ["@jest/globals@30.5.2", "https://npm.flatt.tech/@jest/globals/-/globals-30.5.2.tgz", { "dependencies": { "@jest/environment": "30.5.2", "@jest/expect": "30.5.2", "@jest/types": "30.5.1", "jest-mock": "30.5.2" } }, "sha512-62zfS+dL+M5aTNHXCNLyqD+j4oqxTIzDYrZbpqMP8Yn+gvlAGyzC6BSPNb1ZmFOakV1RtFYX/O3FCQXSWmQdgg=="],
 
     "@jest/pattern": ["@jest/pattern@30.5.0", "https://npm.flatt.tech/@jest/pattern/-/pattern-30.5.0.tgz", { "dependencies": { "@types/node": "*", "jest-regex-util": "30.5.0" } }, "sha512-HdNQYSdRTEBNrginaqzQtTjG0HRMfrra/z6Ok7uL3S87vSlarIVohEsJsSj5edu3MiHoHjAkvPROz5ZjoKai+w=="],
 
@@ -198,7 +198,7 @@
 
     "@jest/snapshot-utils": ["@jest/snapshot-utils@30.5.1", "https://npm.flatt.tech/@jest/snapshot-utils/-/snapshot-utils-30.5.1.tgz", { "dependencies": { "@jest/types": "30.5.1", "chalk": "^4.1.2", "graceful-fs": "^4.2.11", "natural-compare": "^1.4.0" } }, "sha512-V3wnxNtiVmw5PPVg433Cn3VdXnsOeu/ofLw3KC04Bn2y1wIlU5kozXQn48rhrgj/02LrCVtntTEF1yBha0XSUw=="],
 
-    "@jest/transform": ["@jest/transform@30.5.2", "", { "dependencies": { "@babel/core": "^7.27.4", "@jest/types": "30.5.1", "@jridgewell/trace-mapping": "^0.3.31", "babel-plugin-istanbul": "^8.0.0", "chalk": "^4.1.2", "convert-source-map": "^2.0.0", "fast-json-stable-stringify": "^2.1.0", "graceful-fs": "^4.2.11", "jest-haste-map": "30.5.1", "jest-regex-util": "30.5.0", "jest-util": "30.5.1", "pirates": "^4.0.7", "slash": "^3.0.0", "write-file-atomic": "^5.0.1" } }, "sha512-LBGwmaE886C41jDZ65eqR1YbXM7642MK3ZhTowZd5+xDlrDLuf4ePuDdDmVSvcr8NTVJ3MqxLkMbUCzuigUaoQ=="],
+    "@jest/transform": ["@jest/transform@30.5.2", "https://npm.flatt.tech/@jest/transform/-/transform-30.5.2.tgz", { "dependencies": { "@babel/core": "^7.27.4", "@jest/types": "30.5.1", "@jridgewell/trace-mapping": "^0.3.31", "babel-plugin-istanbul": "^8.0.0", "chalk": "^4.1.2", "convert-source-map": "^2.0.0", "fast-json-stable-stringify": "^2.1.0", "graceful-fs": "^4.2.11", "jest-haste-map": "30.5.1", "jest-regex-util": "30.5.0", "jest-util": "30.5.1", "pirates": "^4.0.7", "slash": "^3.0.0", "write-file-atomic": "^5.0.1" } }, "sha512-LBGwmaE886C41jDZ65eqR1YbXM7642MK3ZhTowZd5+xDlrDLuf4ePuDdDmVSvcr8NTVJ3MqxLkMbUCzuigUaoQ=="],
 
     "@jest/types": ["@jest/types@30.5.1", "https://npm.flatt.tech/@jest/types/-/types-30.5.1.tgz", { "dependencies": { "@jest/pattern": "30.5.0", "@jest/schemas": "30.5.0", "@types/istanbul-lib-coverage": "^2.0.6", "@types/istanbul-reports": "^3.0.4", "@types/node": "*", "@types/yargs": "^17.0.33", "chalk": "^4.1.2" } }, "sha512-LvVYn83nnXPl+Rg98nvcFgjx6nRMTArhSn6RAX/w3ELn54S8A42TYZvsCMdGUqTM8S0wyXbtlQdU6Hi6dykj9g=="],
 
@@ -354,7 +354,7 @@
 
     "@types/minimatch": ["@types/minimatch@6.0.0", "https://npm.flatt.tech/@types/minimatch/-/minimatch-6.0.0.tgz", { "dependencies": { "minimatch": "*" } }, "sha512-zmPitbQ8+6zNutpwgcQuLcsEpn/Cj54Kbn7L5pX0Os5kdWplB7xPgEh/g+SWOB/qmows2gpuCaPyduq8ZZRnxA=="],
 
-    "@types/node": ["@types/node@26.6.1", "https://npm.flatt.tech/@types/node/-/node-26.6.1.tgz", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-VqGJBMCtdhqkBUCcBLvywI0NJ+KLuVzgNnlBUNFOQjqVxzo2lxLUNg1DSey8+u2u6ktswSAxg+s68QLzWHNOuA=="],
+    "@types/node": ["@types/node@26.6.2", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-X1P21scMv4zGKLYqjdGjaKa7COa0RKVYYZZN/NfvLQ1JegxFhdhpZG/Lyn8AXx6CDUavKAd11v6BvfpkDByK8g=="],
 
     "@types/normalize-package-data": ["@types/normalize-package-data@2.4.4", "https://npm.flatt.tech/@types/normalize-package-data/-/normalize-package-data-2.4.4.tgz", {}, "sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA=="],
 
@@ -574,7 +574,7 @@
 
     "execall": ["execall@2.0.0", "https://npm.flatt.tech/execall/-/execall-2.0.0.tgz", { "dependencies": { "clone-regexp": "^2.1.0" } }, "sha512-0FU2hZ5Hh6iQnarpRtQurM/aAvp3RIbfvgLHrcqJYzhXyV2KFruhuChf9NC6waAhiUR7FFtlugkI4p7f2Fqlow=="],
 
-    "expect": ["expect@30.5.2", "", { "dependencies": { "@jest/expect-utils": "30.5.2", "@jest/get-type": "30.5.0", "jest-matcher-utils": "30.5.2", "jest-message-util": "30.5.1", "jest-mock": "30.5.2", "jest-util": "30.5.1" } }, "sha512-0LNuMvs8/5mRYhnCR4k+lGV7fqPMs6Bnksda4S3zsCUmdxBpAn4zU4NNzXdq1pMKe/H4W5t/zVIDSJ/H3e0vDA=="],
+    "expect": ["expect@30.5.2", "https://npm.flatt.tech/expect/-/expect-30.5.2.tgz", { "dependencies": { "@jest/expect-utils": "30.5.2", "@jest/get-type": "30.5.0", "jest-matcher-utils": "30.5.2", "jest-message-util": "30.5.1", "jest-mock": "30.5.2", "jest-util": "30.5.1" } }, "sha512-0LNuMvs8/5mRYhnCR4k+lGV7fqPMs6Bnksda4S3zsCUmdxBpAn4zU4NNzXdq1pMKe/H4W5t/zVIDSJ/H3e0vDA=="],
 
     "extend": ["extend@3.0.2", "https://npm.flatt.tech/extend/-/extend-3.0.2.tgz", {}, "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g=="],
 
@@ -788,19 +788,19 @@
 
     "japanese-numerals-to-number": ["japanese-numerals-to-number@1.0.2", "https://npm.flatt.tech/japanese-numerals-to-number/-/japanese-numerals-to-number-1.0.2.tgz", {}, "sha512-rgs/V7G8Gfy8Z4XtnVBYXzWMAb9oUWp1pDdRmwHmh0hcjcy1kOu+DOpC5rwoHUAN4TqANwb7WD6z5W2v7v7PQQ=="],
 
-    "jest-diff": ["jest-diff@30.5.2", "", { "dependencies": { "@jest/diff-sequences": "30.5.0", "@jest/get-type": "30.5.0", "chalk": "^4.1.2", "pretty-format": "30.5.1" } }, "sha512-rBtHnI6BWTiWj3lM7fOLVfChx7R9B0u9VV3PRHawKs79x6ZjW1QoSrKenaigNGWlvhtoi2BqvDbABDie+Os3xQ=="],
+    "jest-diff": ["jest-diff@30.5.2", "https://npm.flatt.tech/jest-diff/-/jest-diff-30.5.2.tgz", { "dependencies": { "@jest/diff-sequences": "30.5.0", "@jest/get-type": "30.5.0", "chalk": "^4.1.2", "pretty-format": "30.5.1" } }, "sha512-rBtHnI6BWTiWj3lM7fOLVfChx7R9B0u9VV3PRHawKs79x6ZjW1QoSrKenaigNGWlvhtoi2BqvDbABDie+Os3xQ=="],
 
     "jest-haste-map": ["jest-haste-map@30.5.1", "https://npm.flatt.tech/jest-haste-map/-/jest-haste-map-30.5.1.tgz", { "dependencies": { "@jest/types": "30.5.1", "@parcel/watcher": "^2.6.0", "@types/node": "*", "anymatch": "^3.1.3", "fb-watchman": "^2.0.2", "fdir": "^6.5.0", "graceful-fs": "^4.2.11", "jest-regex-util": "30.5.0", "jest-util": "30.5.1", "jest-worker": "30.5.1", "picomatch": "^4.0.3" } }, "sha512-VIFgt67jW480YDxKfEv9IYQKrFpYt7bOCMn3VsnjK7AK9qo7p6acpnA1DHwsVOULE3dTaYew/6JaTD/d0VDHoQ=="],
 
-    "jest-matcher-utils": ["jest-matcher-utils@30.5.2", "", { "dependencies": { "@jest/get-type": "30.5.0", "chalk": "^4.1.2", "jest-diff": "30.5.2", "pretty-format": "30.5.1" } }, "sha512-lFkB365PTIHOhPzwrb9T6gvlDnPpOZ7/c3ewOKKB7bzztqjVrtlyRL2MkyfJXpyY2u2SKw001JKrTx14fBUFcQ=="],
+    "jest-matcher-utils": ["jest-matcher-utils@30.5.2", "https://npm.flatt.tech/jest-matcher-utils/-/jest-matcher-utils-30.5.2.tgz", { "dependencies": { "@jest/get-type": "30.5.0", "chalk": "^4.1.2", "jest-diff": "30.5.2", "pretty-format": "30.5.1" } }, "sha512-lFkB365PTIHOhPzwrb9T6gvlDnPpOZ7/c3ewOKKB7bzztqjVrtlyRL2MkyfJXpyY2u2SKw001JKrTx14fBUFcQ=="],
 
     "jest-message-util": ["jest-message-util@30.5.1", "https://npm.flatt.tech/jest-message-util/-/jest-message-util-30.5.1.tgz", { "dependencies": { "@babel/code-frame": "^7.27.1", "@jest/types": "30.5.1", "@types/stack-utils": "^2.0.3", "chalk": "^4.1.2", "graceful-fs": "^4.2.11", "jest-util": "30.5.1", "picomatch": "^4.0.3", "pretty-format": "30.5.1", "slash": "^3.0.0", "stack-utils": "^2.0.6" } }, "sha512-UdQlLdd9wL/Ys7xRErckqwD6wPlSZYueosSWuHc1r2ztGLwlgPvtSJq2+BPEgaEY13WLvfFbmhTj8pba0Sd1jg=="],
 
-    "jest-mock": ["jest-mock@30.5.2", "", { "dependencies": { "@jest/expect-utils": "30.5.2", "@jest/types": "30.5.1", "@types/node": "*", "jest-util": "30.5.1" } }, "sha512-KTHb37Fhj8xY8qPFvTFaFJHcdsumQp+ExsUlgoX232Agmc706gagBs53+CYvulV7MVQo9AgXOUxsqzzVBoJlrA=="],
+    "jest-mock": ["jest-mock@30.5.2", "https://npm.flatt.tech/jest-mock/-/jest-mock-30.5.2.tgz", { "dependencies": { "@jest/expect-utils": "30.5.2", "@jest/types": "30.5.1", "@types/node": "*", "jest-util": "30.5.1" } }, "sha512-KTHb37Fhj8xY8qPFvTFaFJHcdsumQp+ExsUlgoX232Agmc706gagBs53+CYvulV7MVQo9AgXOUxsqzzVBoJlrA=="],
 
     "jest-regex-util": ["jest-regex-util@30.5.0", "https://npm.flatt.tech/jest-regex-util/-/jest-regex-util-30.5.0.tgz", {}, "sha512-Mg0WK7A6xRHLSA1udJ8y9f3lM0uUhFTBnLKzwPmqB9AylvpleJ6BLemR8K9dK27DY+cesDryoA7yLZCAHsPG1A=="],
 
-    "jest-snapshot": ["jest-snapshot@30.5.2", "", { "dependencies": { "@babel/core": "^7.27.4", "@babel/generator": "^7.27.5", "@babel/plugin-syntax-jsx": "^7.27.1", "@babel/plugin-syntax-typescript": "^7.27.1", "@babel/types": "^7.27.3", "@jest/expect-utils": "30.5.2", "@jest/get-type": "30.5.0", "@jest/snapshot-utils": "30.5.1", "@jest/transform": "30.5.2", "@jest/types": "30.5.1", "babel-preset-current-node-syntax": "^1.2.0", "chalk": "^4.1.2", "expect": "30.5.2", "graceful-fs": "^4.2.11", "jest-diff": "30.5.2", "jest-matcher-utils": "30.5.2", "jest-message-util": "30.5.1", "jest-util": "30.5.1", "pretty-format": "30.5.1", "semver": "^7.7.2", "synckit": "^0.11.8" } }, "sha512-jKIdes25AnAH73dOCi2qE6J6vHJ6L2vyBS11M89kT50DVJcLTf2AOjvcc+2vVaN8lUbY5v2R83aqXo3Ro9fqYA=="],
+    "jest-snapshot": ["jest-snapshot@30.5.2", "https://npm.flatt.tech/jest-snapshot/-/jest-snapshot-30.5.2.tgz", { "dependencies": { "@babel/core": "^7.27.4", "@babel/generator": "^7.27.5", "@babel/plugin-syntax-jsx": "^7.27.1", "@babel/plugin-syntax-typescript": "^7.27.1", "@babel/types": "^7.27.3", "@jest/expect-utils": "30.5.2", "@jest/get-type": "30.5.0", "@jest/snapshot-utils": "30.5.1", "@jest/transform": "30.5.2", "@jest/types": "30.5.1", "babel-preset-current-node-syntax": "^1.2.0", "chalk": "^4.1.2", "expect": "30.5.2", "graceful-fs": "^4.2.11", "jest-diff": "30.5.2", "jest-matcher-utils": "30.5.2", "jest-message-util": "30.5.1", "jest-util": "30.5.1", "pretty-format": "30.5.1", "semver": "^7.7.2", "synckit": "^0.11.8" } }, "sha512-jKIdes25AnAH73dOCi2qE6J6vHJ6L2vyBS11M89kT50DVJcLTf2AOjvcc+2vVaN8lUbY5v2R83aqXo3Ro9fqYA=="],
 
     "jest-util": ["jest-util@30.5.1", "https://npm.flatt.tech/jest-util/-/jest-util-30.5.1.tgz", { "dependencies": { "@jest/types": "30.5.1", "@types/node": "*", "chalk": "^4.1.2", "ci-info": "^4.2.0", "graceful-fs": "^4.2.11", "picomatch": "^4.0.3" } }, "sha512-yKuxmNy2rSbTXw+3SIPanJo+nV4/BS1p26v44IYBFMsswSQySfMMcPHErnOncda7i9HEz0q605rIhSTBVgrZTg=="],
 

@@ -59,7 +59,8 @@ Example output with `--show-allow-commands` option.
 
 ### Regular Fields
 
-Overwritten by settings loaded later (last project wins).
+Not merged. Global settings values are kept as-is.
+Project settings such as `hooks` and `env` would otherwise apply to every project.
 
 ### `permissions` Field
 
@@ -115,10 +116,10 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 39 comprehensive tests covering:
+This runs 42 comprehensive tests covering:
 
 - `isStringArray`: Type guard validation (21 tests)
-- `mergeSettings`: Settings merge logic (18 tests)
+- `mergeSettings`: Settings merge logic (21 tests)
 
 ## Code Formatting
 

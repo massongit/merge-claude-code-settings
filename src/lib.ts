@@ -40,7 +40,9 @@ export function isStringArray(value: unknown): value is string[] {
  *
  * For each local settings:
  * - The permissions field combines arrays and removes duplicates
- * - Other fields are overwritten by local settings values
+ * - Other fields are ignored and global settings values are kept,
+ *   because promoting a project's hooks, env, etc. to global settings
+ *   would apply them to every project
  *
  * @param settings - Base global settings
  * @param localSettingsRecord - Map of local settings file paths to their settings objects
@@ -75,22 +77,30 @@ export function mergeSettings({
 
     const beforeSettings: Settings = settings;
 
-    // Basic object merge (overwritten by localSettings)
-    settings = { ...beforeSettings, ...localSettings };
+    // Keep global settings as-is; only permissions are merged below
+    settings = { ...beforeSettings };
 
     // Extract permissions from both settings (empty object if not present)
     const permissionsList: Permissions[] = [beforeSettings, localSettings].map(
       ({ permissions }) => permissions ?? {},
     );
 
-    // Process each permissions key (e.g., "allow", "deny")
-    for (const key of new Set(permissionsList.flatMap(Object.keys))) {
-      if (settings.permissions === undefined) {
-        settings.permissions = {};
-      }
+    const permissionKeys: Set<string> = new Set(
+      permissionsList.flatMap(Object.keys),
+    );
 
+    if (permissionKeys.size === 0) {
+      continue;
+    }
+
+    // Copy before writing so the global settings object is not mutated
+    const permissions: Permissions = { ...beforeSettings.permissions };
+    settings.permissions = permissions;
+
+    // Process each permissions key (e.g., "allow", "deny")
+    for (const key of permissionKeys) {
       // Merge permission commands from both settings, remove duplicates, and sort
-      settings.permissions[key] = Array.from(
+      permissions[key] = Array.from(
         new Set(
           permissionsList
             .map((p) => p[key])

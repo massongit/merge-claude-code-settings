@@ -63,7 +63,8 @@ npx merge-claude-code-settings --show-allow-commands
 
 ### 通常のフィールド
 
-後から読み込まれた設定で上書きされます（最後のプロジェクトの設定が優先）。
+マージせず、グローバル設定の値をそのまま残します。
+プロジェクトの`hooks`や`env`などが、全プロジェクトに適用されるのを防ぐためです。
 
 ### `permissions`フィールド
 
@@ -119,10 +120,10 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-39の包括的なテストが実行されます。
+42の包括的なテストが実行されます。
 
 - `isStringArray`: 型ガード検証（21テスト）
-- `mergeSettings`: 設定マージロジック（18テスト）
+- `mergeSettings`: 設定マージロジック（21テスト）
 
 ## コード整形
 

@@ -126,4 +126,5 @@ This runs 39 comprehensive tests covering:
 bun run fix
 ```
 
-Formats code with Prettier.
+Generates AI agent instruction files from `.rulesync/rules/` with rulesync.
+Then formats code with Prettier.

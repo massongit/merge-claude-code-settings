@@ -1,9 +1,10 @@
 /**
  * Type definition for permissions
- * Key is the permission type (e.g., "allow"), value is an array of allowed commands
+ * Key is the permission type (e.g., "allow"), value is usually an array of commands,
+ * but some keys (e.g., "defaultMode") hold other values
  */
 interface Permissions {
-  [key: string]: string[] | undefined;
+  [key: string]: unknown;
 }
 
 /**
@@ -66,8 +67,7 @@ export function mergeSettings({
   )) {
     // Collect allowed commands for debugging output
     if (showAllowCommands && localSettings.permissions) {
-      const allowCommands: string[] | undefined =
-        localSettings.permissions["allow"];
+      const allowCommands: unknown = localSettings.permissions["allow"];
       if (isStringArray(allowCommands)) {
         mergedAllowCommands.push(
           ...allowCommands.map((c) => `${localSettingsPath}\t${c}`),
@@ -99,15 +99,25 @@ export function mergeSettings({
 
     // Process each permissions key (e.g., "allow", "deny")
     for (const key of permissionKeys) {
+      // Keep non-array global values (e.g., "defaultMode") as-is,
+      // so that security settings such as "disableBypassPermissionsMode" are not lost
+      const beforeValue: unknown = beforeSettings.permissions?.[key];
+
+      if (beforeValue !== undefined && !isStringArray(beforeValue)) {
+        continue;
+      }
+
+      const commandsList: string[][] = permissionsList
+        .map((p: Permissions): unknown => p[key])
+        .filter(isStringArray);
+
+      // Ignore non-array local values instead of promoting them to global settings
+      if (commandsList.length === 0) {
+        continue;
+      }
+
       // Merge permission commands from both settings, remove duplicates, and sort
-      permissions[key] = Array.from(
-        new Set(
-          permissionsList
-            .map((p) => p[key])
-            .filter(isStringArray)
-            .flat(),
-        ),
-      ).sort();
+      permissions[key] = Array.from(new Set(commandsList.flat())).sort();
     }
   }
 

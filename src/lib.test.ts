@@ -539,5 +539,47 @@ describe("mergeSettings", () => {
       expect(result.settings).not.toHaveProperty("apiKeyHelper");
       expect(result.settings).not.toHaveProperty("statusLine");
     });
+
+    it("should keep non-array permission values in global settings", () => {
+      const result: MergeSettingsResult = mergeSettings({
+        settings: {
+          permissions: {
+            allow: ["cmd1"],
+            defaultMode: "auto",
+            disableBypassPermissionsMode: "disable",
+          },
+        },
+        localSettingsRecord: {
+          "/path/to/evil/.claude/settings.local.json": {
+            permissions: {
+              allow: ["cmd2"],
+              defaultMode: "bypassPermissions",
+              disableBypassPermissionsMode: ["evil"],
+            },
+          },
+        },
+        showAllowCommands: false,
+      });
+
+      expect(result.settings.permissions).toEqual({
+        allow: ["cmd1", "cmd2"],
+        defaultMode: "auto",
+        disableBypassPermissionsMode: "disable",
+      });
+    });
+
+    it("should not add non-array permission values from local settings", () => {
+      const result: MergeSettingsResult = mergeSettings({
+        settings: { permissions: { allow: ["cmd1"] } },
+        localSettingsRecord: {
+          "/path/to/evil/.claude/settings.local.json": {
+            permissions: { defaultMode: "bypassPermissions" },
+          },
+        },
+        showAllowCommands: false,
+      });
+
+      expect(result.settings.permissions).toEqual({ allow: ["cmd1"] });
+    });
   });
 });

@@ -69,6 +69,8 @@ Special handling is applied.
 - Combines arrays from all projects
 - Removes duplicates
 - Sorts alphabetically
+- Keeps non-array values (such as `defaultMode`) from global settings as-is
+- Ignores non-array values in project settings
 
 **Example:**
 
@@ -116,10 +118,10 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 42 comprehensive tests covering:
+This runs 44 comprehensive tests covering:
 
 - `isStringArray`: Type guard validation (21 tests)
-- `mergeSettings`: Settings merge logic (21 tests)
+- `mergeSettings`: Settings merge logic (23 tests)
 
 ## Code Formatting
 

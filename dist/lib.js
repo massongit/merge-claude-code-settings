@@ -47,11 +47,21 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
         settings.permissions = permissions;
         // Process each permissions key (e.g., "allow", "deny")
         for (const key of permissionKeys) {
-            // Merge permission commands from both settings, remove duplicates, and sort
-            permissions[key] = Array.from(new Set(permissionsList
+            // Keep non-array global values (e.g., "defaultMode") as-is,
+            // so that security settings such as "disableBypassPermissionsMode" are not lost
+            const beforeValue = beforeSettings.permissions?.[key];
+            if (beforeValue !== undefined && !isStringArray(beforeValue)) {
+                continue;
+            }
+            const commandsList = permissionsList
                 .map((p) => p[key])
-                .filter(isStringArray)
-                .flat())).sort();
+                .filter(isStringArray);
+            // Ignore non-array local values instead of promoting them to global settings
+            if (commandsList.length === 0) {
+                continue;
+            }
+            // Merge permission commands from both settings, remove duplicates, and sort
+            permissions[key] = Array.from(new Set(commandsList.flat())).sort();
         }
     }
     return {

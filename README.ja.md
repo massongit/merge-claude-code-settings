@@ -73,6 +73,8 @@ npx merge-claude-code-settings --show-allow-commands
 - 全プロジェクトの配列を結合
 - 重複を削除
 - アルファベット順にソート
+- グローバル設定の配列でない値（`defaultMode`など）をそのまま残す
+- プロジェクト設定の配列でない値を無視
 
 **例：**
 
@@ -120,10 +122,10 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-42の包括的なテストが実行されます。
+44の包括的なテストが実行されます。
 
 - `isStringArray`: 型ガード検証（21テスト）
-- `mergeSettings`: 設定マージロジック（21テスト）
+- `mergeSettings`: 設定マージロジック（23テスト）
 
 ## コード整形
 

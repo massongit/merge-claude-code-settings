@@ -130,4 +130,5 @@ bun test
 bun run fix
 ```
 
-Prettierでコードをフォーマットします。
+rulesyncで`.rulesync/rules/`からAIエージェント向けの指示ファイルを生成します。
+その後、Prettierでコードをフォーマットします。

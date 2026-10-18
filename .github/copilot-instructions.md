@@ -17,3 +17,39 @@ This maintains consistency between English and Japanese documentation.
 
 See `src/index.ts` and `src/lib.ts` for details.
 These cover the processing flow, merge strategy, backup mechanism, and type definitions.
+
+## Security
+
+This tool reads `.claude/settings.local.json` from every project listed in `~/.claude.json`.
+It then rewrites the user's global `~/.claude/settings.json`, which applies to all projects.
+CI jobs here also run with write-capable tokens.
+When implementing or reviewing, check that the change withstands malicious input and operations.
+Working correctly is not enough.
+
+- Treat every project's `settings.local.json` as attacker-controlled.
+  The same goes for the project paths in `~/.claude.json`.
+  A cloned repository can ship its own `.claude/settings.local.json`.
+  Its contents, paths, and symlinks can all be crafted.
+- Merging promotes a single project's permissions to every project.
+  Never let a change merge `deny` or `ask` rules away, or let `allow` rules override them.
+  Do not merge keys other than the ones intended.
+  Do not let crafted keys such as `__proto__` pollute objects.
+- Malformed or hostile JSON must fail safely with an error.
+  It must never truncate or corrupt the global settings file or its backup.
+  It must never cause unbounded resource use.
+  Do not write the global settings file until all inputs have been read and merged successfully.
+  Preserve the original file permissions, because settings files can contain secrets.
+- Do not leak secrets or settings contents (such as `env` values) in logs or error messages.
+- In GitHub Actions workflows and scripts, keep values from outside inside their string or code:
+  - Do not embed `${{ }}` values directly in `run:`; pass them via `env:`.
+  - In shell, always double-quote variables, and never use `eval` or build commands from strings.
+  - In jobs with write permissions, keep `persist-credentials: false` and least-privilege `permissions`.
+    Also do not run dependency lifecycle scripts there (for example, `bun install --ignore-scripts`).
+- Pin new external Actions to full commit SHAs.
+  Avoid dependency versions that were published only very recently.
+- When fixing a security issue, always write tests that confirm the issue no longer reproduces.
+  - Use the inputs an attacker would use, and confirm the fixed code skips or rejects them safely.
+    For example, crafted `settings.local.json` files, symlinks, or `__proto__` keys.
+  - Confirm the tests fail against the code before the fix, so they actually detect the issue.
+- If a vulnerability is found during review, do not write the details in a public issue or PR.
+  Report it privately first.

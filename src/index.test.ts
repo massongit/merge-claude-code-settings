@@ -15,6 +15,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { SpawnSyncReturns } from "node:child_process";
 import type { Settings } from "./lib.js";
 
@@ -91,7 +92,7 @@ function setup(
 function run(homeDirPath: string, args: string[]): SpawnSyncReturns<string> {
   return spawnSync(
     process.execPath,
-    [join(import.meta.dirname, "index.ts"), ...args],
+    [fileURLToPath(new URL("index.ts", import.meta.url)), ...args],
     {
       env: { ...process.env, HOME: homeDirPath },
       encoding: "utf-8",

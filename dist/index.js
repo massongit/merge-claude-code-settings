@@ -18,7 +18,7 @@
 import { readFileSync, existsSync, writeFileSync, copyFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createInterface } from "node:readline/promises";
+import { createInterface } from "node:readline";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { escapeControlCharacters, isTrustedProject, listAddedPermissions, mergeSettings, } from "./lib.js";
@@ -50,7 +50,7 @@ async function confirmAddedPermissions(addedPermissions, yes) {
         output: process.stdout,
     });
     try {
-        const answer = await readline.question("Add these permissions to global settings? [y/N] ");
+        const answer = await new Promise((resolve) => readline.question("Add these permissions to global settings? [y/N] ", resolve));
         return /^y(es)?$/i.test(answer.trim());
     }
     finally {

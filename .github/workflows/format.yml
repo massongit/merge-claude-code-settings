@@ -42,7 +42,7 @@ jobs:
         uses: flatt-security/setup-takumi-guard-npm@14f07d0cbc739b42a1b7c70a04c2b84cd1318ddd # v1.4.0
       - name: Install
         if: github.event_name != 'pull_request' || github.event.action != 'closed'
-        run: bun install
+        run: bun install --ignore-scripts
       - run: |
           echo "export const version: string = \"$(yq -r .version package.json)\";" > src/version.ts
         if: github.event_name != 'pull_request' || github.event.action != 'closed'

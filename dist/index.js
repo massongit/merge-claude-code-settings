@@ -15,7 +15,7 @@
  * --show-allow-commands: Display allowed commands to stdout (for debugging)
  * --yes: Write without confirmation
  */
-import { readFileSync, existsSync, writeFileSync, copyFileSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, copyFileSync, lstatSync, realpathSync, } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
@@ -58,6 +58,21 @@ async function confirmAddedPermissions(addedPermissions, yes) {
     }
 }
 /**
+ * Check if a local settings file is a regular file inside the project
+ *
+ * A cloned repository can replace the file or its .claude directory with a symbolic link
+ * to read other files, such as credentials, so such files are rejected
+ *
+ * @param projectPath - Project path
+ * @param localSettingsPath - Local settings file path
+ * @returns true if the file is a regular file and no symbolic link is followed inside the project
+ */
+function isRegularFileInProject(projectPath, localSettingsPath) {
+    return (lstatSync(localSettingsPath).isFile() &&
+        realpathSync(localSettingsPath) ===
+            join(realpathSync(projectPath), ".claude", "settings.local.json"));
+}
+/**
  * Main process
  *
  * @param showAllowCommands - Output allowed commands
@@ -98,10 +113,17 @@ async function main(showAllowCommands, yes) {
         if (!existsSync(localSettingsPath)) {
             continue;
         }
+        const escapedLocalSettingsPath = escapeControlCharacters(localSettingsPath);
         // Skip projects that Claude Code itself does not trust
         if (!isTrustedProject(project)) {
-            console.warn(`Skipping "${escapeControlCharacters(localSettingsPath)}" ` +
+            console.warn(`Skipping "${escapedLocalSettingsPath}" ` +
                 "because the trust dialog has not been accepted for this project in Claude Code.");
+            continue;
+        }
+        // Skip symbolic links and special files so that files outside the project are not read
+        if (!isRegularFileInProject(projectPath, localSettingsPath)) {
+            console.warn(`Skipping "${escapedLocalSettingsPath}" ` +
+                "because it is not a regular file inside the project, such as a symbolic link.");
             continue;
         }
         // Read local settings

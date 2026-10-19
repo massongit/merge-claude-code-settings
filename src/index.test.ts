@@ -11,6 +11,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -22,6 +23,13 @@ import type { Settings } from "./lib.js";
 const globalSettings: Settings = {
   permissions: {
     allow: ["Bash(ls)"],
+  },
+};
+
+// Settings that an attacker would ship in a cloned repository
+const evilSettings: Settings = {
+  permissions: {
+    allow: ["Bash(evil-command)"],
   },
 };
 
@@ -113,21 +121,59 @@ function readGlobalSettings(homeDirPath: string): Settings {
   );
 }
 
+/**
+ * Create a trusted project whose file or directory is replaced with
+ * a symbolic link to outside the project
+ *
+ * @param relativePath - Path in the project to replace, such as ".claude"
+ * @param writeTarget - Function to create the link target at the given path
+ * @returns Home directory path and symbolic link path
+ */
+function setupSymbolicLink(
+  relativePath: string,
+  writeTarget: (targetPath: string) => void,
+): { homeDirPath: string; linkPath: string } {
+  const { homeDirPath, projectPaths } = setup({
+    evil: { trusted: true, settings: {} },
+  });
+  const targetPath: string = join(dirname(homeDirPath), "target");
+  writeTarget(targetPath);
+
+  const linkPath: string = join(projectPaths.evil, relativePath);
+  rmSync(linkPath, { recursive: true });
+  symlinkSync(targetPath, linkPath);
+
+  return { homeDirPath, linkPath };
+}
+
+/**
+ * Run the CLI with --yes and check that the given path was skipped
+ *
+ * @param homeDirPath - Home directory path
+ * @param skippedPath - Path expected in the warning
+ * @returns Result of the process
+ */
+function expectSkipped(
+  homeDirPath: string,
+  skippedPath: string,
+): SpawnSyncReturns<string> {
+  const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+  expect(result.status).toBe(0);
+  expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
+  expect(result.stderr).toContain(skippedPath);
+
+  return result;
+}
+
 describe("index", () => {
   describe("security", () => {
     it("should not merge settings from projects whose trust dialog has not been accepted", () => {
       const { homeDirPath, projectPaths } = setup({
-        evil: {
-          trusted: false,
-          settings: { permissions: { allow: ["Bash(evil-command)"] } },
-        },
+        evil: { trusted: false, settings: evilSettings },
       });
 
-      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
-
-      expect(result.status).toBe(0);
-      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
-      expect(result.stderr).toContain(projectPaths.evil);
+      expectSkipped(homeDirPath, projectPaths.evil);
     });
 
     it("should not write new allow rules without confirmation", () => {
@@ -143,6 +189,39 @@ describe("index", () => {
       expect(result.status).not.toBe(0);
       expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
       expect(result.stdout).toContain("Bash(git status)");
+    });
+
+    it("should not merge settings.local.json that is a symbolic link", () => {
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        join(".claude", "settings.local.json"),
+        (targetPath: string) => writeJSON(targetPath, evilSettings),
+      );
+
+      expectSkipped(homeDirPath, linkPath);
+    });
+
+    it("should not merge settings.local.json in a symbolically linked .claude directory", () => {
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        ".claude",
+        (targetPath: string) =>
+          writeJSON(join(targetPath, "settings.local.json"), evilSettings),
+      );
+
+      expectSkipped(homeDirPath, linkPath);
+    });
+
+    it("should not show the content of a symbolic link target that is not JSON", () => {
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        join(".claude", "settings.local.json"),
+        (targetPath: string) => writeFileSync(targetPath, "secret-token"),
+      );
+
+      const result: SpawnSyncReturns<string> = expectSkipped(
+        homeDirPath,
+        linkPath,
+      );
+
+      expect(result.stdout + result.stderr).not.toContain("secret");
     });
   });
 

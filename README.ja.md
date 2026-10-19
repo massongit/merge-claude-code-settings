@@ -26,6 +26,7 @@ Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認
 - 複数プロジェクトの`.claude/settings.local.json`を自動検出
 - Claude Codeで信頼ダイアログを承認していないプロジェクトはスキップ
 - シンボリックリンクを経由する`.claude/settings.local.json`はスキップ
+- 不正な`.claude/settings.local.json`はスキップし、他のプロジェクトはマージ
 - グローバル設定に追加される許可設定を一覧表示し、書き込む前に確認
 - グローバル設定 (`~/.claude/settings.json`) にマージ
 - 書き込み前に日時付きのバックアップを作成 (`~/.claude/settings.json.<日時>.bak`)
@@ -135,17 +136,18 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-71の包括的なテストが実行されます。
+81の包括的なテストが実行されます。
 
 - `getClaudeDirPath`: `.claude`ディレクトリのパス（1テスト）
 - `getGlobalSettingsPath`: グローバル設定ファイルのパス（1テスト）
 - `getLocalSettingsPath`: プロジェクトのローカル設定ファイルのパス（1テスト）
 - `isStringArray`: 型ガード検証（21テスト）
 - `mergeSettings`: 設定マージロジック（23テスト）
+- `parseSettings`: 設定ファイルの解析（7テスト）
 - `isTrustedProject`: 信頼ダイアログの承認状態の判定（5テスト）
 - `escapeControlCharacters`: 端末出力向けの制御文字のエスケープ（4テスト）
 - `listAddedPermissions`: 追加される許可設定の一覧（5テスト）
-- CLI: 未承認プロジェクトとシンボリックリンクのスキップ、確認、書き込み（10テスト）
+- CLI: 安全でないローカル設定のスキップ、確認、書き込み（13テスト）
 
 ## コード整形
 

@@ -1,4 +1,18 @@
 import { join } from "node:path";
+import z from "zod";
+/**
+ * Schema for permissions
+ * Key is the permission type (e.g., "allow"), value is usually an array of commands,
+ * but some keys (e.g., "defaultMode") hold other values
+ */
+const permissionsSchema = z.record(z.string(), z.unknown());
+/**
+ * Schema for Claude Code settings object
+ * Fields other than permissions are kept as-is
+ */
+const settingsSchema = z.looseObject({
+    permissions: permissionsSchema.optional(),
+});
 /**
  * Get the .claude directory path in a home or project directory
  *
@@ -96,6 +110,16 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
         settings,
         mergedAllowCommands,
     };
+}
+/**
+ * Parse a settings file
+ *
+ * @param text - Content of the settings file
+ * @returns Settings, or undefined if the content is not valid settings
+ */
+export function parseSettings(text) {
+    const settings = settingsSchema.safeParse(JSON.parse(text));
+    return settings.success ? settings.data : undefined;
 }
 /**
  * Check if the trust dialog has been accepted for a project in ~/.claude.json

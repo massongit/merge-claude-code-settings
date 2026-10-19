@@ -175,6 +175,25 @@ function setupSymbolicLink(
 }
 
 /**
+ * Create a trusted project whose local settings file has the given content
+ *
+ * @param content - Content of the local settings file
+ * @returns Home directory path and local settings file path
+ */
+function setupLocalSettingsContent(content: string): {
+  homeDirPath: string;
+  localSettingsPath: string;
+} {
+  const { homeDirPath, projectPaths }: SetupResult = setup({
+    evil: { trusted: true, settings: {} },
+  });
+  const localSettingsPath: string = getLocalSettingsPath(projectPaths.evil);
+  writeFileSync(localSettingsPath, content);
+
+  return { homeDirPath, localSettingsPath };
+}
+
+/**
  * Run the CLI with --yes and check that the given path was skipped
  *
  * @param homeDirPath - Home directory path
@@ -260,6 +279,46 @@ describe("index", () => {
 
       expect(result.stdout + result.stderr).not.toContain("secret");
     });
+
+    it("should skip invalid JSON and merge the other projects", () => {
+      const { homeDirPath, projectPaths }: SetupResult = setup({
+        evil: { trusted: true, settings: {} },
+        trusted: {
+          trusted: true,
+          settings: { permissions: { allow: ["Bash(git status)"] } },
+        },
+      });
+      writeFileSync(getLocalSettingsPath(projectPaths.evil), "{");
+
+      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+      expect(result.status).toBe(0);
+      expect(readGlobalSettings(homeDirPath).permissions?.allow).toEqual([
+        "Bash(git status)",
+        "Bash(ls)",
+      ]);
+      expect(result.stderr).toContain(getLocalSettingsPath(projectPaths.evil));
+    });
+
+    it("should skip JSON that is not an object", () => {
+      const { homeDirPath, localSettingsPath } =
+        setupLocalSettingsContent("null");
+
+      expectSkipped(homeDirPath, localSettingsPath);
+    });
+
+    it("should not show the content of invalid JSON", () => {
+      const { homeDirPath, localSettingsPath } = setupLocalSettingsContent(
+        '{"env": {"TOKEN": secret-token}}',
+      );
+
+      const result: SpawnSyncReturns<string> = expectSkipped(
+        homeDirPath,
+        localSettingsPath,
+      );
+
+      expect(result.stdout + result.stderr).not.toContain("secret");
+    });
   });
 
   describe("confirmation", () => {
@@ -305,12 +364,14 @@ describe("index", () => {
           JSON.parse(readFileSync(backupPath, "utf-8")),
         ),
       ).toContainEqual(globalSettings);
-      expect(readdirSync(getClaudeDirPath(homeDirPath)).sort()).toEqual([
-        ...listBackupPaths(homeDirPath)
-          .map((backupPath: string): string => basename(backupPath))
-          .sort(),
-        "settings.json",
-      ]);
+      expect(readdirSync(getClaudeDirPath(homeDirPath)).sort()).toEqual(
+        [
+          ...listBackupPaths(homeDirPath).map((backupPath: string): string =>
+            basename(backupPath),
+          ),
+          "settings.json",
+        ].sort(),
+      );
     });
 
     it("should keep the file permissions of global settings and its backup", () => {

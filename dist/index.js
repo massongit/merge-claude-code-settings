@@ -22,7 +22,7 @@ import { join } from "node:path";
 import { createInterface } from "node:readline";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { escapeControlCharacters, getGlobalSettingsPath, getLocalSettingsPath, isTrustedProject, listAddedPermissions, mergeSettings, } from "./lib.js";
+import { escapeControlCharacters, getGlobalSettingsPath, getLocalSettingsPath, isTrustedProject, listAddedPermissions, mergeSettings, parseSettings, } from "./lib.js";
 import { version } from "./version.js";
 /**
  * List permissions to be added to global settings and ask the user for confirmation
@@ -151,13 +151,14 @@ async function main(showAllowCommands, yes) {
             continue;
         }
         // Read local settings
-        try {
-            localSettingsRecord[localSettingsPath] = JSON.parse(readFileSync(localSettingsPath, "utf-8"));
+        const localSettings = parseSettings(readFileSync(localSettingsPath, "utf-8"));
+        // Skip invalid local settings so that one project cannot stop the others.
+        // The parser message is not shown because it can contain the file content.
+        if (localSettings === undefined) {
+            console.warn(`Skipping "${escapedLocalSettingsPath}" because it is not valid settings.`);
+            continue;
         }
-        catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            throw new Error(`Failed to parse JSON in local settings file "${localSettingsPath}": ${message}`);
-        }
+        localSettingsRecord[localSettingsPath] = localSettings;
     }
     const mergeResult = mergeSettings({
         settings,

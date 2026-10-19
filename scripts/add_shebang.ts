@@ -11,7 +11,7 @@ const file = join(__dirname, "..", "dist", "index.js");
 
 try {
   const originalContent = fs.readFileSync(file, "utf8");
-  fs.writeFileSync(file, "#!/usr/bin/env node\n" + originalContent);
+  fs.writeFileSync(file, `#!/usr/bin/env node\n${originalContent}`);
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   throw new Error(`Failed to add shebang to "${file}": ${message}`);

@@ -625,6 +625,11 @@ describe("escapeControlCharacters", () => {
     expect(escapeControlCharacters("a\u009bb\u202ec")).toBe(
       "a\\u009bb\\u202ec",
     ));
+
+  it("should escape all bidirectional control characters", () =>
+    expect(
+      escapeControlCharacters("\u061c\u200e\u200f\u202a\u2066\u2069"),
+    ).toBe("\\u061c\\u200e\\u200f\\u202a\\u2066\\u2069"));
 });
 
 describe("listAddedPermissions", () => {

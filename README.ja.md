@@ -133,12 +133,12 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-61の包括的なテストが実行されます。
+62の包括的なテストが実行されます。
 
 - `isStringArray`: 型ガード検証（21テスト）
 - `mergeSettings`: 設定マージロジック（23テスト）
 - `isTrustedProject`: 信頼ダイアログの承認状態の判定（5テスト）
-- `escapeControlCharacters`: 端末出力向けの制御文字のエスケープ（3テスト）
+- `escapeControlCharacters`: 端末出力向けの制御文字のエスケープ（4テスト）
 - `listAddedPermissions`: 追加される許可設定の一覧（5テスト）
 - CLI: 未承認プロジェクトのスキップと確認（4テスト）
 

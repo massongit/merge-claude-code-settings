@@ -28,7 +28,7 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
     for (const [localSettingsPath, localSettings] of Object.entries(localSettingsRecord)) {
         // Collect allowed commands for debugging output
         if (showAllowCommands && localSettings.permissions) {
-            const allowCommands = localSettings.permissions["allow"];
+            const allowCommands = localSettings.permissions.allow;
             if (isStringArray(allowCommands)) {
                 mergedAllowCommands.push(...allowCommands.map((c) => `${localSettingsPath}\t${c}`));
             }
@@ -91,7 +91,7 @@ export function isTrustedProject(project) {
  * @returns Text with control and bidirectional formatting characters escaped
  */
 export function escapeControlCharacters(text) {
-    return text.replace(/[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
+    return text.replace(/[\p{Cc}\p{Bidi_Control}]/gu, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
 }
 /**
  * List permission entries that local settings would add to global settings

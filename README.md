@@ -129,12 +129,12 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 61 comprehensive tests covering:
+This runs 62 comprehensive tests covering:
 
 - `isStringArray`: Type guard validation (21 tests)
 - `mergeSettings`: Settings merge logic (23 tests)
 - `isTrustedProject`: Trust dialog state check (5 tests)
-- `escapeControlCharacters`: Escaping control characters for terminal output (3 tests)
+- `escapeControlCharacters`: Escaping control characters for terminal output (4 tests)
 - `listAddedPermissions`: Listing permissions to be added (5 tests)
 - CLI: Skipping untrusted projects and confirmation (4 tests)
 

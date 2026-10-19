@@ -67,7 +67,7 @@ export function mergeSettings({
   )) {
     // Collect allowed commands for debugging output
     if (showAllowCommands && localSettings.permissions) {
-      const allowCommands: unknown = localSettings.permissions["allow"];
+      const allowCommands: unknown = localSettings.permissions.allow;
       if (isStringArray(allowCommands)) {
         mergedAllowCommands.push(
           ...allowCommands.map((c) => `${localSettingsPath}\t${c}`),
@@ -155,7 +155,7 @@ export function isTrustedProject(
  */
 export function escapeControlCharacters(text: string): string {
   return text.replace(
-    /[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g,
+    /[\p{Cc}\p{Bidi_Control}]/gu,
     (c: string): string =>
       `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`,
   );

@@ -126,3 +126,83 @@ export function mergeSettings({
     mergedAllowCommands,
   };
 }
+
+/**
+ * Check if the trust dialog has been accepted for a project in ~/.claude.json
+ *
+ * Claude Code applies a project's local settings only after it is trusted,
+ * so settings from untrusted projects must not be merged into global settings
+ *
+ * @param project - Project entry in ~/.claude.json
+ * @returns true if the trust dialog has been accepted
+ */
+export function isTrustedProject(
+  project: unknown,
+): project is { hasTrustDialogAccepted: true } {
+  return (
+    typeof project === "object" &&
+    project !== null &&
+    "hasTrustDialogAccepted" in project &&
+    project.hasTrustDialogAccepted === true
+  );
+}
+
+/**
+ * Escape control characters so that untrusted text cannot rewrite terminal output
+ *
+ * @param text - Text to escape
+ * @returns Text with control and bidirectional formatting characters escaped
+ */
+export function escapeControlCharacters(text: string): string {
+  return text.replace(
+    /[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g,
+    (c: string): string =>
+      `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`,
+  );
+}
+
+/**
+ * List permission entries that local settings would add to global settings
+ *
+ * "deny" and "ask" are excluded because they only restrict permissions.
+ * Non-array values are excluded because they are not merged.
+ *
+ * @param settings - Base global settings
+ * @param localSettingsRecord - Map of local settings file paths to their settings objects
+ * @returns Added entries in "<local settings path>\t<permission type>\t<value>" format,
+ *          with control characters escaped
+ */
+export function listAddedPermissions(
+  settings: Settings,
+  localSettingsRecord: Record<string, Settings>,
+): string[] {
+  const addedPermissions: string[] = [];
+
+  for (const [localSettingsPath, localSettings] of Object.entries(
+    localSettingsRecord,
+  )) {
+    for (const [key, values] of Object.entries(
+      localSettings.permissions ?? {},
+    )) {
+      if (["deny", "ask"].includes(key) || !isStringArray(values)) {
+        continue;
+      }
+
+      const beforeValues: unknown = settings.permissions?.[key];
+
+      if (beforeValues === undefined || isStringArray(beforeValues)) {
+        addedPermissions.push(
+          ...values
+            .filter((value: string): boolean => !beforeValues?.includes(value))
+            .map((value: string): string =>
+              [localSettingsPath, key, value]
+                .map(escapeControlCharacters)
+                .join("\t"),
+            ),
+        );
+      }
+    }
+  }
+
+  return addedPermissions;
+}

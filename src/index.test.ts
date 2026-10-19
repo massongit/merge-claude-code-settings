@@ -11,6 +11,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -143,6 +144,66 @@ describe("index", () => {
       expect(result.status).not.toBe(0);
       expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
       expect(result.stdout).toContain("Bash(git status)");
+    });
+
+    it("should not merge settings.local.json that is a symbolic link", () => {
+      const { homeDirPath, projectPaths } = setup({
+        evil: { trusted: true, settings: {} },
+      });
+      const targetPath: string = join(dirname(homeDirPath), "target.json");
+      writeJSON(targetPath, { permissions: { allow: ["Bash(evil-command)"] } });
+      const localSettingsPath: string = join(
+        projectPaths.evil,
+        ".claude",
+        "settings.local.json",
+      );
+      rmSync(localSettingsPath);
+      symlinkSync(targetPath, localSettingsPath);
+
+      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+      expect(result.status).toBe(0);
+      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
+      expect(result.stderr).toContain(localSettingsPath);
+    });
+
+    it("should not merge settings.local.json in a symbolically linked .claude directory", () => {
+      const { homeDirPath, projectPaths } = setup({
+        evil: { trusted: true, settings: {} },
+      });
+      const targetDirPath: string = join(dirname(homeDirPath), "target");
+      writeJSON(join(targetDirPath, "settings.local.json"), {
+        permissions: { allow: ["Bash(evil-command)"] },
+      });
+      const claudeDirPath: string = join(projectPaths.evil, ".claude");
+      rmSync(claudeDirPath, { recursive: true });
+      symlinkSync(targetDirPath, claudeDirPath);
+
+      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+      expect(result.status).toBe(0);
+      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
+      expect(result.stderr).toContain(claudeDirPath);
+    });
+
+    it("should not show the content of a symbolic link target that is not JSON", () => {
+      const { homeDirPath, projectPaths } = setup({
+        evil: { trusted: true, settings: {} },
+      });
+      const targetPath: string = join(dirname(homeDirPath), "credentials");
+      writeFileSync(targetPath, "secret-token");
+      const localSettingsPath: string = join(
+        projectPaths.evil,
+        ".claude",
+        "settings.local.json",
+      );
+      rmSync(localSettingsPath);
+      symlinkSync(targetPath, localSettingsPath);
+
+      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+      expect(result.stdout + result.stderr).not.toContain("secret");
+      expect(result.status).toBe(0);
     });
   });
 

@@ -26,6 +26,13 @@ const globalSettings: Settings = {
   },
 };
 
+// Settings that an attacker would ship in a cloned repository
+const evilSettings: Settings = {
+  permissions: {
+    allow: ["Bash(evil-command)"],
+  },
+};
+
 const tempDirPaths: string[] = [];
 
 afterEach(() => {
@@ -114,21 +121,59 @@ function readGlobalSettings(homeDirPath: string): Settings {
   );
 }
 
+/**
+ * Create a trusted project whose file or directory is replaced with
+ * a symbolic link to outside the project
+ *
+ * @param relativePath - Path in the project to replace, such as ".claude"
+ * @param writeTarget - Function to create the link target at the given path
+ * @returns Home directory path and symbolic link path
+ */
+function setupSymbolicLink(
+  relativePath: string,
+  writeTarget: (targetPath: string) => void,
+): { homeDirPath: string; linkPath: string } {
+  const { homeDirPath, projectPaths } = setup({
+    evil: { trusted: true, settings: {} },
+  });
+  const targetPath: string = join(dirname(homeDirPath), "target");
+  writeTarget(targetPath);
+
+  const linkPath: string = join(projectPaths.evil, relativePath);
+  rmSync(linkPath, { recursive: true });
+  symlinkSync(targetPath, linkPath);
+
+  return { homeDirPath, linkPath };
+}
+
+/**
+ * Run the CLI with --yes and check that the given path was skipped
+ *
+ * @param homeDirPath - Home directory path
+ * @param skippedPath - Path expected in the warning
+ * @returns Result of the process
+ */
+function expectSkipped(
+  homeDirPath: string,
+  skippedPath: string,
+): SpawnSyncReturns<string> {
+  const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+
+  expect(result.status).toBe(0);
+  expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
+  expect(result.stderr).toContain(skippedPath);
+
+  return result;
+}
+
 describe("index", () => {
   describe("security", () => {
     it("should not merge settings from projects whose trust dialog has not been accepted", () => {
       const { homeDirPath, projectPaths } = setup({
-        evil: {
-          trusted: false,
-          settings: { permissions: { allow: ["Bash(evil-command)"] } },
-        },
+        evil: { trusted: false, settings: evilSettings },
       });
 
-      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
-
-      expect(result.status).toBe(0);
-      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
-      expect(result.stderr).toContain(projectPaths.evil);
+      expectSkipped(homeDirPath, projectPaths.evil);
     });
 
     it("should not write new allow rules without confirmation", () => {
@@ -147,63 +192,36 @@ describe("index", () => {
     });
 
     it("should not merge settings.local.json that is a symbolic link", () => {
-      const { homeDirPath, projectPaths } = setup({
-        evil: { trusted: true, settings: {} },
-      });
-      const targetPath: string = join(dirname(homeDirPath), "target.json");
-      writeJSON(targetPath, { permissions: { allow: ["Bash(evil-command)"] } });
-      const localSettingsPath: string = join(
-        projectPaths.evil,
-        ".claude",
-        "settings.local.json",
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        join(".claude", "settings.local.json"),
+        (targetPath: string) => writeJSON(targetPath, evilSettings),
       );
-      rmSync(localSettingsPath);
-      symlinkSync(targetPath, localSettingsPath);
 
-      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
-
-      expect(result.status).toBe(0);
-      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
-      expect(result.stderr).toContain(localSettingsPath);
+      expectSkipped(homeDirPath, linkPath);
     });
 
     it("should not merge settings.local.json in a symbolically linked .claude directory", () => {
-      const { homeDirPath, projectPaths } = setup({
-        evil: { trusted: true, settings: {} },
-      });
-      const targetDirPath: string = join(dirname(homeDirPath), "target");
-      writeJSON(join(targetDirPath, "settings.local.json"), {
-        permissions: { allow: ["Bash(evil-command)"] },
-      });
-      const claudeDirPath: string = join(projectPaths.evil, ".claude");
-      rmSync(claudeDirPath, { recursive: true });
-      symlinkSync(targetDirPath, claudeDirPath);
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        ".claude",
+        (targetPath: string) =>
+          writeJSON(join(targetPath, "settings.local.json"), evilSettings),
+      );
 
-      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
-
-      expect(result.status).toBe(0);
-      expect(readGlobalSettings(homeDirPath)).toEqual(globalSettings);
-      expect(result.stderr).toContain(claudeDirPath);
+      expectSkipped(homeDirPath, linkPath);
     });
 
     it("should not show the content of a symbolic link target that is not JSON", () => {
-      const { homeDirPath, projectPaths } = setup({
-        evil: { trusted: true, settings: {} },
-      });
-      const targetPath: string = join(dirname(homeDirPath), "credentials");
-      writeFileSync(targetPath, "secret-token");
-      const localSettingsPath: string = join(
-        projectPaths.evil,
-        ".claude",
-        "settings.local.json",
+      const { homeDirPath, linkPath } = setupSymbolicLink(
+        join(".claude", "settings.local.json"),
+        (targetPath: string) => writeFileSync(targetPath, "secret-token"),
       );
-      rmSync(localSettingsPath);
-      symlinkSync(targetPath, localSettingsPath);
 
-      const result: SpawnSyncReturns<string> = run(homeDirPath, ["--yes"]);
+      const result: SpawnSyncReturns<string> = expectSkipped(
+        homeDirPath,
+        linkPath,
+      );
 
       expect(result.stdout + result.stderr).not.toContain("secret");
-      expect(result.status).toBe(0);
     });
   });
 

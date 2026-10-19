@@ -5,7 +5,8 @@
  * 1. Read ~/.claude/settings.json as the base configuration
  * 2. Get project paths from ~/.claude.json
  * 3. Read and merge .claude/settings.local.json from each project
- * 4. Write the merged settings back to ~/.claude/settings.json
+ * 4. Back up ~/.claude/settings.json with a timestamp
+ * 5. Write the merged settings back to ~/.claude/settings.json atomically
  *
  * Projects whose trust dialog has not been accepted in Claude Code are skipped.
  * If permissions would be added to global settings, they are listed and confirmed before writing.
@@ -22,6 +23,11 @@ import {
   copyFileSync,
   lstatSync,
   realpathSync,
+  statSync,
+  chmodSync,
+  renameSync,
+  rmSync,
+  constants,
 } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -30,6 +36,8 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import {
   escapeControlCharacters,
+  getGlobalSettingsPath,
+  getLocalSettingsPath,
   isTrustedProject,
   listAddedPermissions,
   mergeSettings,
@@ -105,8 +113,32 @@ function isRegularFileInProject(
   return (
     lstatSync(localSettingsPath).isFile() &&
     realpathSync(localSettingsPath) ===
-      join(realpathSync(projectPath), ".claude", "settings.local.json")
+      getLocalSettingsPath(realpathSync(projectPath))
   );
+}
+
+/**
+ * Write a file atomically by writing to a temporary file and renaming it
+ *
+ * The original file permissions are kept, because settings files can contain secrets.
+ * If the file is a symbolic link, its target is written so that the link is kept.
+ *
+ * @param filePath - File path to write
+ * @param content - Content to write
+ */
+function writeFileAtomically(filePath: string, content: string) {
+  const targetPath: string = realpathSync(filePath);
+  const tempPath: string = `${targetPath}.${process.pid}.tmp`;
+  const mode: number = statSync(targetPath).mode & 0o777;
+
+  try {
+    writeFileSync(tempPath, content, { flag: "wx", mode });
+    chmodSync(tempPath, mode);
+    renameSync(tempPath, targetPath);
+  } catch (error) {
+    rmSync(tempPath, { force: true });
+    throw error;
+  }
 }
 
 /**
@@ -135,7 +167,7 @@ async function main(showAllowCommands: boolean, yes: boolean) {
   }
 
   // Global settings file path
-  const settingsPath: string = join(homeDirPath, ".claude", "settings.json");
+  const settingsPath: string = getGlobalSettingsPath(homeDirPath);
 
   let settings: Settings;
 
@@ -158,11 +190,7 @@ async function main(showAllowCommands: boolean, yes: boolean) {
     claudeJSON.projects ?? {},
   )) {
     // Project local settings file path
-    const localSettingsPath: string = join(
-      projectPath,
-      ".claude",
-      "settings.local.json",
-    );
+    const localSettingsPath: string = getLocalSettingsPath(projectPath);
 
     // Skip if local settings file doesn't exist
     if (!existsSync(localSettingsPath)) {
@@ -226,11 +254,14 @@ async function main(showAllowCommands: boolean, yes: boolean) {
     return;
   }
 
-  const backupSettingsPath: string = `${settingsPath}.bak`;
+  // Keep every backup,
+  // so that the original settings are not lost by running again ":" cannot be used in file names on Windows
+  const timestamp: string = new Date().toISOString().replace(/[:.]/g, "-");
+  const backupSettingsPath: string = `${settingsPath}.${timestamp}.bak`;
 
   // Backup current settings file before writing
   try {
-    copyFileSync(settingsPath, backupSettingsPath);
+    copyFileSync(settingsPath, backupSettingsPath, constants.COPYFILE_EXCL);
   } catch (error) {
     const message: string =
       error instanceof Error ? error.message : String(error);
@@ -242,7 +273,10 @@ async function main(showAllowCommands: boolean, yes: boolean) {
 
   // Write merged settings back to global settings file
   try {
-    writeFileSync(settingsPath, JSON.stringify(mergeResult.settings, null, 2));
+    writeFileAtomically(
+      settingsPath,
+      JSON.stringify(mergeResult.settings, null, 2),
+    );
   } catch (error) {
     const message: string =
       error instanceof Error ? error.message : String(error);

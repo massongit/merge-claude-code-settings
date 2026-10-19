@@ -6,7 +6,8 @@
  * 1. Read ~/.claude/settings.json as the base configuration
  * 2. Get project paths from ~/.claude.json
  * 3. Read and merge .claude/settings.local.json from each project
- * 4. Write the merged settings back to ~/.claude/settings.json
+ * 4. Back up ~/.claude/settings.json with a timestamp
+ * 5. Write the merged settings back to ~/.claude/settings.json atomically
  *
  * Projects whose trust dialog has not been accepted in Claude Code are skipped.
  * If permissions would be added to global settings, they are listed and confirmed before writing.
@@ -15,13 +16,13 @@
  * --show-allow-commands: Display allowed commands to stdout (for debugging)
  * --yes: Write without confirmation
  */
-import { readFileSync, existsSync, writeFileSync, copyFileSync, lstatSync, realpathSync, } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, copyFileSync, lstatSync, realpathSync, statSync, chmodSync, renameSync, rmSync, constants, } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { escapeControlCharacters, isTrustedProject, listAddedPermissions, mergeSettings, } from "./lib.js";
+import { escapeControlCharacters, getGlobalSettingsPath, getLocalSettingsPath, isTrustedProject, listAddedPermissions, mergeSettings, } from "./lib.js";
 import { version } from "./version.js";
 /**
  * List permissions to be added to global settings and ask the user for confirmation
@@ -70,7 +71,30 @@ async function confirmAddedPermissions(addedPermissions, yes) {
 function isRegularFileInProject(projectPath, localSettingsPath) {
     return (lstatSync(localSettingsPath).isFile() &&
         realpathSync(localSettingsPath) ===
-            join(realpathSync(projectPath), ".claude", "settings.local.json"));
+            getLocalSettingsPath(realpathSync(projectPath)));
+}
+/**
+ * Write a file atomically by writing to a temporary file and renaming it
+ *
+ * The original file permissions are kept, because settings files can contain secrets.
+ * If the file is a symbolic link, its target is written so that the link is kept.
+ *
+ * @param filePath - File path to write
+ * @param content - Content to write
+ */
+function writeFileAtomically(filePath, content) {
+    const targetPath = realpathSync(filePath);
+    const tempPath = `${targetPath}.${process.pid}.tmp`;
+    const mode = statSync(targetPath).mode & 0o777;
+    try {
+        writeFileSync(tempPath, content, { flag: "wx", mode });
+        chmodSync(tempPath, mode);
+        renameSync(tempPath, targetPath);
+    }
+    catch (error) {
+        rmSync(tempPath, { force: true });
+        throw error;
+    }
 }
 /**
  * Main process
@@ -93,7 +117,7 @@ async function main(showAllowCommands, yes) {
             `Please ensure the file exists and contains valid JSON: ${message}`);
     }
     // Global settings file path
-    const settingsPath = join(homeDirPath, ".claude", "settings.json");
+    const settingsPath = getGlobalSettingsPath(homeDirPath);
     let settings;
     // Global settings (base for merging)
     try {
@@ -108,7 +132,7 @@ async function main(showAllowCommands, yes) {
     // Process each project's local settings
     for (const [projectPath, project] of Object.entries(claudeJSON.projects ?? {})) {
         // Project local settings file path
-        const localSettingsPath = join(projectPath, ".claude", "settings.local.json");
+        const localSettingsPath = getLocalSettingsPath(projectPath);
         // Skip if local settings file doesn't exist
         if (!existsSync(localSettingsPath)) {
             continue;
@@ -150,10 +174,13 @@ async function main(showAllowCommands, yes) {
         console.log("Aborted. Global settings were not changed.");
         return;
     }
-    const backupSettingsPath = `${settingsPath}.bak`;
+    // Keep every backup,
+    // so that the original settings are not lost by running again ":" cannot be used in file names on Windows
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const backupSettingsPath = `${settingsPath}.${timestamp}.bak`;
     // Backup current settings file before writing
     try {
-        copyFileSync(settingsPath, backupSettingsPath);
+        copyFileSync(settingsPath, backupSettingsPath, constants.COPYFILE_EXCL);
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -162,7 +189,7 @@ async function main(showAllowCommands, yes) {
     }
     // Write merged settings back to global settings file
     try {
-        writeFileSync(settingsPath, JSON.stringify(mergeResult.settings, null, 2));
+        writeFileAtomically(settingsPath, JSON.stringify(mergeResult.settings, null, 2));
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);

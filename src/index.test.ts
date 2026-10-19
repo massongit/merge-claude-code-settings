@@ -11,7 +11,6 @@ import {
   lstatSync,
   mkdirSync,
   mkdtempSync,
-  Mode,
   readdirSync,
   readFileSync,
   renameSync,
@@ -24,12 +23,21 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SpawnSyncReturns } from "node:child_process";
+import type { Mode } from "node:fs";
 import {
   getClaudeDirPath,
   getGlobalSettingsPath,
   getLocalSettingsPath,
 } from "./lib.js";
 import type { Settings } from "./lib.js";
+
+/**
+ * Result of creating a temporary home directory with projects
+ */
+type SetupResult = {
+  homeDirPath: string;
+  projectPaths: Record<string, string>;
+};
 
 const globalSettings: Settings = {
   permissions: {
@@ -71,7 +79,7 @@ function writeJSON(filePath: string, value: unknown) {
  */
 function setup(
   projects: Record<string, { trusted: boolean; settings: Settings }>,
-): { homeDirPath: string; projectPaths: Record<string, string> } {
+): SetupResult {
   const rootDirPath: string = mkdtempSync(
     join(tmpdir(), "merge-claude-code-settings-"),
   );
@@ -103,10 +111,7 @@ function setup(
  *
  * @returns Home directory path and project paths
  */
-function setupTrustedProject(): {
-  homeDirPath: string;
-  projectPaths: Record<string, string>;
-} {
+function setupTrustedProject(): SetupResult {
   return setup({
     trusted: {
       trusted: true,
@@ -156,7 +161,7 @@ function setupSymbolicLink(
   getLinkPath: (projectPath: string) => string,
   writeTarget: (targetPath: string) => void,
 ): { homeDirPath: string; linkPath: string } {
-  const { homeDirPath, projectPaths } = setup({
+  const { homeDirPath, projectPaths }: SetupResult = setup({
     evil: { trusted: true, settings: {} },
   });
   const targetPath: string = join(dirname(homeDirPath), "target");
@@ -206,7 +211,7 @@ function listBackupPaths(homeDirPath: string): string[] {
 describe("index", () => {
   describe("security", () => {
     it("should not merge settings from projects whose trust dialog has not been accepted", () => {
-      const { homeDirPath, projectPaths } = setup({
+      const { homeDirPath, projectPaths }: SetupResult = setup({
         evil: { trusted: false, settings: evilSettings },
       });
 
@@ -214,7 +219,7 @@ describe("index", () => {
     });
 
     it("should not write new allow rules without confirmation", () => {
-      const { homeDirPath } = setupTrustedProject();
+      const { homeDirPath }: SetupResult = setupTrustedProject();
 
       const result: SpawnSyncReturns<string> = run(homeDirPath, []);
 
@@ -259,7 +264,7 @@ describe("index", () => {
 
   describe("confirmation", () => {
     it("should merge new allow rules from trusted projects with --yes", () => {
-      const { homeDirPath } = setupTrustedProject();
+      const { homeDirPath }: SetupResult = setupTrustedProject();
 
       expect(run(homeDirPath, ["--yes"]).status).toBe(0);
       expect(readGlobalSettings(homeDirPath).permissions?.allow).toEqual([
@@ -269,7 +274,7 @@ describe("index", () => {
     });
 
     it("should write without confirmation when no rules are added", () => {
-      const { homeDirPath } = setup({
+      const { homeDirPath }: SetupResult = setup({
         trusted: {
           trusted: true,
           settings: {
@@ -287,7 +292,7 @@ describe("index", () => {
 
   describe("writing", () => {
     it("should keep the backup of the original settings after running twice", () => {
-      const { homeDirPath, projectPaths } = setupTrustedProject();
+      const { homeDirPath, projectPaths }: SetupResult = setupTrustedProject();
 
       expect(run(homeDirPath, ["--yes"]).status).toBe(0);
       writeJSON(getLocalSettingsPath(projectPaths.trusted), {
@@ -309,7 +314,7 @@ describe("index", () => {
     });
 
     it("should keep the file permissions of global settings and its backup", () => {
-      const { homeDirPath } = setupTrustedProject();
+      const { homeDirPath }: SetupResult = setupTrustedProject();
       const settingsPath: string = getGlobalSettingsPath(homeDirPath);
       const mode: Mode = 0o600;
       chmodSync(settingsPath, mode);
@@ -322,7 +327,7 @@ describe("index", () => {
     });
 
     it("should keep a symbolically linked global settings file as a link", () => {
-      const { homeDirPath } = setupTrustedProject();
+      const { homeDirPath }: SetupResult = setupTrustedProject();
       const settingsPath: string = getGlobalSettingsPath(homeDirPath);
       const targetPath: string = join(dirname(homeDirPath), "settings.json");
       renameSync(settingsPath, targetPath);

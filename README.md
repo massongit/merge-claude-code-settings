@@ -20,6 +20,8 @@ This enables common permissions across all projects.
 ## Features
 
 - Automatically detects `.claude/settings.local.json` from multiple projects
+- Skips projects whose trust dialog has not been accepted in Claude Code
+- Lists permissions to be added to global settings and asks for confirmation before writing
 - Merges into global settings (`~/.claude/settings.json`)
 - Creates automatic backup (`~/.claude/settings.json.bak`) before writing
 - Combines arrays in the `permissions` field and automatically removes duplicates
@@ -34,15 +36,24 @@ npx merge-claude-code-settings
 
 # Debug mode (print allowed commands to stdout)
 npx merge-claude-code-settings --show-allow-commands
+
+# Write without confirmation (for scripts)
+npx merge-claude-code-settings --yes
 ```
 
 The following operations are performed.
 
 1. Reads the list of registered projects from `~/.claude.json`
-2. Loads `.claude/settings.local.json` from each project
+2. Loads `.claude/settings.local.json` from each project whose trust dialog has been accepted
 3. Merges settings
-4. Creates a backup of the current settings (`~/.claude/settings.json.bak`)
-5. Writes the merged settings to `~/.claude/settings.json`
+4. Lists the permissions to be added to global settings and asks for confirmation
+5. Creates a backup of the current settings (`~/.claude/settings.json.bak`)
+6. Writes the merged settings to `~/.claude/settings.json`
+
+Permissions added to global settings apply to every project.
+Check the list carefully, especially for repositories cloned from untrusted sources.
+Entries in `deny` and `ask` only restrict permissions, so they are not listed.
+Without a terminal, the tool stops unless `--yes` is passed.
 
 Example output with `--show-allow-commands` option.
 
@@ -118,10 +129,14 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 44 comprehensive tests covering:
+This runs 62 comprehensive tests covering:
 
 - `isStringArray`: Type guard validation (21 tests)
 - `mergeSettings`: Settings merge logic (23 tests)
+- `isTrustedProject`: Trust dialog state check (5 tests)
+- `escapeControlCharacters`: Escaping control characters for terminal output (4 tests)
+- `listAddedPermissions`: Listing permissions to be added (5 tests)
+- CLI: Skipping untrusted projects and confirmation (4 tests)
 
 ## Code Formatting
 

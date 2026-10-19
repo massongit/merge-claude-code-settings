@@ -7,25 +7,87 @@
  * 3. Read and merge .claude/settings.local.json from each project
  * 4. Write the merged settings back to ~/.claude/settings.json
  *
+ * Projects whose trust dialog has not been accepted in Claude Code are skipped.
+ * If permissions would be added to global settings, they are listed and confirmed before writing.
+ *
  * Options:
  * --show-allow-commands: Display allowed commands to stdout (for debugging)
+ * --yes: Write without confirmation
  */
 
 import { readFileSync, existsSync, writeFileSync, copyFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { createInterface } from "node:readline";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { mergeSettings } from "./lib.js";
+import {
+  escapeControlCharacters,
+  isTrustedProject,
+  listAddedPermissions,
+  mergeSettings,
+} from "./lib.js";
 import { version } from "./version.js";
+import type { Interface } from "node:readline";
 import type { MergeSettingsResult, Settings } from "./lib.js";
+
+/**
+ * List permissions to be added to global settings and ask the user for confirmation
+ *
+ * @param addedPermissions - Permissions to be added to global settings
+ * @param yes - Write without confirmation
+ * @returns true if global settings may be written
+ */
+async function confirmAddedPermissions(
+  addedPermissions: string[],
+  yes: boolean,
+): Promise<boolean> {
+  if (addedPermissions.length === 0) {
+    return true;
+  }
+
+  console.log("The following permissions will be added to global settings:");
+
+  for (const addedPermission of addedPermissions) {
+    console.log(addedPermission);
+  }
+
+  if (yes) {
+    return true;
+  }
+
+  if (!process.stdin.isTTY) {
+    throw new Error(
+      "Confirmation is required to add permissions to global settings. " +
+        "Run in a terminal, or pass --yes to write without confirmation.",
+    );
+  }
+
+  const readline: Interface = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  try {
+    const answer: string = await new Promise((resolve) =>
+      readline.question(
+        "Add these permissions to global settings? [y/N] ",
+        resolve,
+      ),
+    );
+    return /^y(es)?$/i.test(answer.trim());
+  } finally {
+    readline.close();
+  }
+}
 
 /**
  * Main process
  *
  * @param showAllowCommands - Output allowed commands
+ * @param yes - Write without confirmation
  */
-function main(showAllowCommands: boolean) {
+async function main(showAllowCommands: boolean, yes: boolean) {
   // Home directory path
   const homeDirPath: string = homedir();
 
@@ -64,7 +126,9 @@ function main(showAllowCommands: boolean) {
   const localSettingsRecord: Record<string, Settings> = {};
 
   // Process each project's local settings
-  for (const projectPath of Object.keys(claudeJSON.projects ?? {})) {
+  for (const [projectPath, project] of Object.entries(
+    claudeJSON.projects ?? {},
+  )) {
     // Project local settings file path
     const localSettingsPath: string = join(
       projectPath,
@@ -74,6 +138,15 @@ function main(showAllowCommands: boolean) {
 
     // Skip if local settings file doesn't exist
     if (!existsSync(localSettingsPath)) {
+      continue;
+    }
+
+    // Skip projects that Claude Code itself does not trust
+    if (!isTrustedProject(project)) {
+      console.warn(
+        `Skipping "${escapeControlCharacters(localSettingsPath)}" ` +
+          "because the trust dialog has not been accepted for this project in Claude Code.",
+      );
       continue;
     }
 
@@ -100,6 +173,17 @@ function main(showAllowCommands: boolean) {
   // Output allowed commands if collected
   for (const allowCommand of mergeResult.mergedAllowCommands) {
     console.log(allowCommand);
+  }
+
+  // Permissions added here apply to every project, so confirm them before writing
+  const addedPermissions: string[] = listAddedPermissions(
+    settings,
+    localSettingsRecord,
+  );
+
+  if (!(await confirmAddedPermissions(addedPermissions, yes))) {
+    console.log("Aborted. Global settings were not changed.");
+    return;
   }
 
   const backupSettingsPath: string = `${settingsPath}.bak`;
@@ -138,10 +222,17 @@ const argv = yargs(hideBin(process.argv))
     description: "Display allowed commands to stdout (for debugging)",
     default: false,
   })
+  .option("yes", {
+    alias: "y",
+    type: "boolean",
+    description:
+      "Write without confirmation, even if permissions are added to global settings",
+    default: false,
+  })
   .parseSync();
 
 try {
-  main(argv.showAllowCommands);
+  await main(argv.showAllowCommands, argv.yes);
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;

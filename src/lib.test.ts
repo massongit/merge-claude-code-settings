@@ -3,7 +3,13 @@
  */
 
 import { describe, it, expect } from "@jest/globals";
-import { isStringArray, mergeSettings } from "./lib.js";
+import {
+  escapeControlCharacters,
+  isStringArray,
+  isTrustedProject,
+  listAddedPermissions,
+  mergeSettings,
+} from "./lib.js";
 import type { MergeSettingsResult } from "./lib.js";
 
 describe("isStringArray", () => {
@@ -582,4 +588,107 @@ describe("mergeSettings", () => {
       expect(result.settings.permissions).toEqual({ allow: ["cmd1"] });
     });
   });
+});
+
+describe("isTrustedProject", () => {
+  it("should return true when the trust dialog has been accepted", () =>
+    expect(isTrustedProject({ hasTrustDialogAccepted: true })).toBe(true));
+
+  it("should return false when the trust dialog has not been accepted", () =>
+    expect(isTrustedProject({ hasTrustDialogAccepted: false })).toBe(false));
+
+  it("should return false when hasTrustDialogAccepted is missing", () =>
+    expect(isTrustedProject({})).toBe(false));
+
+  it("should return false for a truthy non-boolean value", () =>
+    expect(isTrustedProject({ hasTrustDialogAccepted: "true" })).toBe(false));
+
+  it("should return false for non-objects", () => {
+    expect(isTrustedProject(null)).toBe(false);
+    expect(isTrustedProject(undefined)).toBe(false);
+    expect(isTrustedProject(true)).toBe(false);
+  });
+});
+
+describe("escapeControlCharacters", () => {
+  it("should keep printable text as-is", () =>
+    expect(escapeControlCharacters("Bash(git status)")).toBe(
+      "Bash(git status)",
+    ));
+
+  it("should escape ANSI escape sequences and carriage returns", () =>
+    expect(escapeControlCharacters("Bash(ls)\r\u001b[2KBash(evil)")).toBe(
+      "Bash(ls)\\u000d\\u001b[2KBash(evil)",
+    ));
+
+  it("should escape C1 control and bidirectional formatting characters", () =>
+    expect(escapeControlCharacters("a\u009bb\u202ec")).toBe(
+      "a\\u009bb\\u202ec",
+    ));
+
+  it("should escape all bidirectional control characters", () =>
+    expect(
+      escapeControlCharacters("\u061c\u200e\u200f\u202a\u2066\u2069"),
+    ).toBe("\\u061c\\u200e\\u200f\\u202a\\u2066\\u2069"));
+});
+
+describe("listAddedPermissions", () => {
+  it("should list only entries missing from global settings", () =>
+    expect(
+      listAddedPermissions(
+        { permissions: { allow: ["cmd1"] } },
+        { "/path/to/settings1": { permissions: { allow: ["cmd1", "cmd2"] } } },
+      ),
+    ).toEqual(["/path/to/settings1\tallow\tcmd2"]));
+
+  it("should not list deny and ask entries", () =>
+    expect(
+      listAddedPermissions(
+        {},
+        {
+          "/path/to/settings1": {
+            permissions: { deny: ["cmd1"], ask: ["cmd2"] },
+          },
+        },
+      ),
+    ).toEqual([]));
+
+  it("should list other array entries such as additionalDirectories", () =>
+    expect(
+      listAddedPermissions(
+        {},
+        {
+          "/path/to/settings1": {
+            permissions: { additionalDirectories: ["/path/to/dir"] },
+          },
+        },
+      ),
+    ).toEqual(["/path/to/settings1\tadditionalDirectories\t/path/to/dir"]));
+
+  it("should not list values that are not merged", () =>
+    expect(
+      listAddedPermissions(
+        { permissions: { defaultMode: "auto" } },
+        {
+          "/path/to/settings1": {
+            permissions: {
+              defaultMode: ["bypassPermissions"],
+              disableBypassPermissionsMode: "disable",
+            },
+          },
+        },
+      ),
+    ).toEqual([]));
+
+  it("should escape control characters in listed entries", () =>
+    expect(
+      listAddedPermissions(
+        {},
+        {
+          "/path/to/settings1": {
+            permissions: { allow: ["Bash(ls)\u001b[1A\u001b[2K"] },
+          },
+        },
+      ),
+    ).toEqual(["/path/to/settings1\tallow\tBash(ls)\\u001b[1A\\u001b[2K"]));
 });

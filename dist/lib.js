@@ -28,7 +28,7 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
     for (const [localSettingsPath, localSettings] of Object.entries(localSettingsRecord)) {
         // Collect allowed commands for debugging output
         if (showAllowCommands && localSettings.permissions) {
-            const allowCommands = localSettings.permissions["allow"];
+            const allowCommands = localSettings.permissions.allow;
             if (isStringArray(allowCommands)) {
                 mergedAllowCommands.push(...allowCommands.map((c) => `${localSettingsPath}\t${c}`));
             }
@@ -68,4 +68,58 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
         settings,
         mergedAllowCommands,
     };
+}
+/**
+ * Check if the trust dialog has been accepted for a project in ~/.claude.json
+ *
+ * Claude Code applies a project's local settings only after it is trusted,
+ * so settings from untrusted projects must not be merged into global settings
+ *
+ * @param project - Project entry in ~/.claude.json
+ * @returns true if the trust dialog has been accepted
+ */
+export function isTrustedProject(project) {
+    return (typeof project === "object" &&
+        project !== null &&
+        "hasTrustDialogAccepted" in project &&
+        project.hasTrustDialogAccepted === true);
+}
+/**
+ * Escape control characters so that untrusted text cannot rewrite terminal output
+ *
+ * @param text - Text to escape
+ * @returns Text with control and bidirectional formatting characters escaped
+ */
+export function escapeControlCharacters(text) {
+    return text.replace(/[\p{Cc}\p{Bidi_Control}]/gu, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
+}
+/**
+ * List permission entries that local settings would add to global settings
+ *
+ * "deny" and "ask" are excluded because they only restrict permissions.
+ * Non-array values are excluded because they are not merged.
+ *
+ * @param settings - Base global settings
+ * @param localSettingsRecord - Map of local settings file paths to their settings objects
+ * @returns Added entries in "<local settings path>\t<permission type>\t<value>" format,
+ *          with control characters escaped
+ */
+export function listAddedPermissions(settings, localSettingsRecord) {
+    const addedPermissions = [];
+    for (const [localSettingsPath, localSettings] of Object.entries(localSettingsRecord)) {
+        for (const [key, values] of Object.entries(localSettings.permissions ?? {})) {
+            if (["deny", "ask"].includes(key) || !isStringArray(values)) {
+                continue;
+            }
+            const beforeValues = settings.permissions?.[key];
+            if (beforeValues === undefined || isStringArray(beforeValues)) {
+                addedPermissions.push(...values
+                    .filter((value) => !beforeValues?.includes(value))
+                    .map((value) => [localSettingsPath, key, value]
+                    .map(escapeControlCharacters)
+                    .join("\t")));
+            }
+        }
+    }
+    return addedPermissions;
 }

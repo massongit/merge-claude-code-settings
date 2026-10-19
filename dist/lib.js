@@ -118,15 +118,8 @@ export function mergeSettings({ settings, localSettingsRecord, showAllowCommands
  * @returns Settings, or undefined if the content is not valid settings
  */
 export function parseSettings(text) {
-    let settings;
-    try {
-        settings = JSON.parse(text);
-    }
-    catch {
-        return undefined;
-    }
-    const result = settingsSchema.safeParse(settings);
-    return result.success ? result.data : undefined;
+    const settings = settingsSchema.safeParse(JSON.parse(text));
+    return settings.success ? settings.data : undefined;
 }
 /**
  * Check if the trust dialog has been accepted for a project in ~/.claude.json

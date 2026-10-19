@@ -28,7 +28,7 @@ Claude Codeでは、特定のコマンド実行を今後ユーザーへの確認
 - シンボリックリンクを経由する`.claude/settings.local.json`はスキップ
 - グローバル設定に追加される許可設定を一覧表示し、書き込む前に確認
 - グローバル設定 (`~/.claude/settings.json`) にマージ
-- 書き込み前に自動バックアップを作成 (`~/.claude/settings.json.bak`)
+- 書き込み前に日時付きのバックアップを作成 (`~/.claude/settings.json.<日時>.bak`)
 - `permissions`フィールドは配列を結合して重複を自動削除
 - 実行時に許可されたコマンドをデバッグ出力
 
@@ -52,8 +52,8 @@ npx merge-claude-code-settings --yes
 2. 信頼ダイアログを承認済みの各プロジェクトから`.claude/settings.local.json`を読み込み
 3. グローバル設定にマージ
 4. グローバル設定に追加される許可設定を一覧表示し、確認を求める
-5. 現在の設定のバックアップを作成 (`~/.claude/settings.json.bak`)
-6. マージ済み設定を`~/.claude/settings.json`に書き込み
+5. 現在の設定のバックアップを作成 (`~/.claude/settings.json.<日時>.bak`)
+6. マージ済み設定を、ファイルのパーミッションを保ったまま`~/.claude/settings.json`へアトミックに書き込み
 
 グローバル設定に追加された許可設定は、全プロジェクトに適用されます。
 特に、信頼できない場所からcloneしたリポジトリがある場合は、一覧をよく確認してください。
@@ -135,14 +135,17 @@ node dist/index.js --show-allow-commands
 bun test
 ```
 
-65の包括的なテストが実行されます。
+71の包括的なテストが実行されます。
 
+- `getClaudeDirPath`: `.claude`ディレクトリのパス（1テスト）
+- `getGlobalSettingsPath`: グローバル設定ファイルのパス（1テスト）
+- `getLocalSettingsPath`: プロジェクトのローカル設定ファイルのパス（1テスト）
 - `isStringArray`: 型ガード検証（21テスト）
 - `mergeSettings`: 設定マージロジック（23テスト）
 - `isTrustedProject`: 信頼ダイアログの承認状態の判定（5テスト）
 - `escapeControlCharacters`: 端末出力向けの制御文字のエスケープ（4テスト）
 - `listAddedPermissions`: 追加される許可設定の一覧（5テスト）
-- CLI: 未承認プロジェクトとシンボリックリンクのスキップ、確認（7テスト）
+- CLI: 未承認プロジェクトとシンボリックリンクのスキップ、確認、書き込み（10テスト）
 
 ## コード整形
 

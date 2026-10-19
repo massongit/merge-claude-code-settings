@@ -7,17 +7,28 @@
 import { describe, it, expect, afterEach } from "@jest/globals";
 import { spawnSync } from "node:child_process";
 import {
+  chmodSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
+  Mode,
+  readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
+  statSync,
   symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SpawnSyncReturns } from "node:child_process";
+import {
+  getClaudeDirPath,
+  getGlobalSettingsPath,
+  getLocalSettingsPath,
+} from "./lib.js";
 import type { Settings } from "./lib.js";
 
 const globalSettings: Settings = {
@@ -71,10 +82,7 @@ function setup(
 
   for (const [name, project] of Object.entries(projects)) {
     const projectPath: string = join(rootDirPath, "projects", name);
-    writeJSON(
-      join(projectPath, ".claude", "settings.local.json"),
-      project.settings,
-    );
+    writeJSON(getLocalSettingsPath(projectPath), project.settings);
     projectPaths[name] = projectPath;
     claudeJSONProjects[projectPath] = {
       hasTrustDialogAccepted: project.trusted,
@@ -85,9 +93,26 @@ function setup(
   writeJSON(join(homeDirPath, ".claude.json"), {
     projects: claudeJSONProjects,
   });
-  writeJSON(join(homeDirPath, ".claude", "settings.json"), globalSettings);
+  writeJSON(getGlobalSettingsPath(homeDirPath), globalSettings);
 
   return { homeDirPath, projectPaths };
+}
+
+/**
+ * Create a temporary home directory with a trusted project that adds an allow rule
+ *
+ * @returns Home directory path and project paths
+ */
+function setupTrustedProject(): {
+  homeDirPath: string;
+  projectPaths: Record<string, string>;
+} {
+  return setup({
+    trusted: {
+      trusted: true,
+      settings: { permissions: { allow: ["Bash(git status)"] } },
+    },
+  });
 }
 
 /**
@@ -116,21 +141,19 @@ function run(homeDirPath: string, args: string[]): SpawnSyncReturns<string> {
  * @returns Global settings
  */
 function readGlobalSettings(homeDirPath: string): Settings {
-  return JSON.parse(
-    readFileSync(join(homeDirPath, ".claude", "settings.json"), "utf-8"),
-  );
+  return JSON.parse(readFileSync(getGlobalSettingsPath(homeDirPath), "utf-8"));
 }
 
 /**
  * Create a trusted project whose file or directory is replaced with
  * a symbolic link to outside the project
  *
- * @param relativePath - Path in the project to replace, such as ".claude"
+ * @param getLinkPath - Function to get the path in the project to replace, such as getClaudeDirPath
  * @param writeTarget - Function to create the link target at the given path
  * @returns Home directory path and symbolic link path
  */
 function setupSymbolicLink(
-  relativePath: string,
+  getLinkPath: (projectPath: string) => string,
   writeTarget: (targetPath: string) => void,
 ): { homeDirPath: string; linkPath: string } {
   const { homeDirPath, projectPaths } = setup({
@@ -139,7 +162,7 @@ function setupSymbolicLink(
   const targetPath: string = join(dirname(homeDirPath), "target");
   writeTarget(targetPath);
 
-  const linkPath: string = join(projectPaths.evil, relativePath);
+  const linkPath: string = getLinkPath(projectPaths.evil);
   rmSync(linkPath, { recursive: true });
   symlinkSync(targetPath, linkPath);
 
@@ -166,6 +189,20 @@ function expectSkipped(
   return result;
 }
 
+/**
+ * List backup files of global settings
+ *
+ * @param homeDirPath - Home directory path
+ * @returns Backup file paths
+ */
+function listBackupPaths(homeDirPath: string): string[] {
+  const globalClaudeDirPath: string = getClaudeDirPath(homeDirPath);
+
+  return readdirSync(globalClaudeDirPath)
+    .filter((fileName: string): boolean => fileName.endsWith(".bak"))
+    .map((fileName: string): string => join(globalClaudeDirPath, fileName));
+}
+
 describe("index", () => {
   describe("security", () => {
     it("should not merge settings from projects whose trust dialog has not been accepted", () => {
@@ -177,12 +214,7 @@ describe("index", () => {
     });
 
     it("should not write new allow rules without confirmation", () => {
-      const { homeDirPath } = setup({
-        trusted: {
-          trusted: true,
-          settings: { permissions: { allow: ["Bash(git status)"] } },
-        },
-      });
+      const { homeDirPath } = setupTrustedProject();
 
       const result: SpawnSyncReturns<string> = run(homeDirPath, []);
 
@@ -193,7 +225,7 @@ describe("index", () => {
 
     it("should not merge settings.local.json that is a symbolic link", () => {
       const { homeDirPath, linkPath } = setupSymbolicLink(
-        join(".claude", "settings.local.json"),
+        getLocalSettingsPath,
         (targetPath: string) => writeJSON(targetPath, evilSettings),
       );
 
@@ -202,7 +234,7 @@ describe("index", () => {
 
     it("should not merge settings.local.json in a symbolically linked .claude directory", () => {
       const { homeDirPath, linkPath } = setupSymbolicLink(
-        ".claude",
+        getClaudeDirPath,
         (targetPath: string) =>
           writeJSON(join(targetPath, "settings.local.json"), evilSettings),
       );
@@ -212,7 +244,7 @@ describe("index", () => {
 
     it("should not show the content of a symbolic link target that is not JSON", () => {
       const { homeDirPath, linkPath } = setupSymbolicLink(
-        join(".claude", "settings.local.json"),
+        getLocalSettingsPath,
         (targetPath: string) => writeFileSync(targetPath, "secret-token"),
       );
 
@@ -227,12 +259,7 @@ describe("index", () => {
 
   describe("confirmation", () => {
     it("should merge new allow rules from trusted projects with --yes", () => {
-      const { homeDirPath } = setup({
-        trusted: {
-          trusted: true,
-          settings: { permissions: { allow: ["Bash(git status)"] } },
-        },
-      });
+      const { homeDirPath } = setupTrustedProject();
 
       expect(run(homeDirPath, ["--yes"]).status).toBe(0);
       expect(readGlobalSettings(homeDirPath).permissions?.allow).toEqual([
@@ -254,6 +281,64 @@ describe("index", () => {
       expect(run(homeDirPath, []).status).toBe(0);
       expect(readGlobalSettings(homeDirPath).permissions?.deny).toEqual([
         "Bash(rm:*)",
+      ]);
+    });
+  });
+
+  describe("writing", () => {
+    it("should keep the backup of the original settings after running twice", () => {
+      const { homeDirPath, projectPaths } = setupTrustedProject();
+
+      expect(run(homeDirPath, ["--yes"]).status).toBe(0);
+      writeJSON(getLocalSettingsPath(projectPaths.trusted), {
+        permissions: { allow: ["Bash(pwd)"] },
+      });
+      expect(run(homeDirPath, ["--yes"]).status).toBe(0);
+
+      expect(
+        listBackupPaths(homeDirPath).map((backupPath: string): Settings =>
+          JSON.parse(readFileSync(backupPath, "utf-8")),
+        ),
+      ).toContainEqual(globalSettings);
+      expect(readdirSync(getClaudeDirPath(homeDirPath)).sort()).toEqual([
+        ...listBackupPaths(homeDirPath)
+          .map((backupPath: string): string => basename(backupPath))
+          .sort(),
+        "settings.json",
+      ]);
+    });
+
+    it("should keep the file permissions of global settings and its backup", () => {
+      const { homeDirPath } = setupTrustedProject();
+      const settingsPath: string = getGlobalSettingsPath(homeDirPath);
+      const mode: Mode = 0o600;
+      chmodSync(settingsPath, mode);
+
+      expect(run(homeDirPath, ["--yes"]).status).toBe(0);
+
+      for (const filePath of [settingsPath, ...listBackupPaths(homeDirPath)]) {
+        expect(statSync(filePath).mode & 0o777).toBe(mode);
+      }
+    });
+
+    it("should keep a symbolically linked global settings file as a link", () => {
+      const { homeDirPath } = setupTrustedProject();
+      const settingsPath: string = getGlobalSettingsPath(homeDirPath);
+      const targetPath: string = join(dirname(homeDirPath), "settings.json");
+      renameSync(settingsPath, targetPath);
+      symlinkSync(targetPath, settingsPath);
+
+      expect(run(homeDirPath, ["--yes"]).status).toBe(0);
+
+      expect(lstatSync(settingsPath).isSymbolicLink()).toBe(true);
+      expect(readGlobalSettings(homeDirPath).permissions?.allow).toEqual([
+        "Bash(git status)",
+        "Bash(ls)",
+      ]);
+      expect(readdirSync(dirname(homeDirPath)).sort()).toEqual([
+        "home",
+        "projects",
+        "settings.json",
       ]);
     });
   });

@@ -3,14 +3,40 @@
  */
 
 import { describe, it, expect } from "@jest/globals";
+import { join } from "node:path";
 import {
   escapeControlCharacters,
+  getClaudeDirPath,
+  getGlobalSettingsPath,
+  getLocalSettingsPath,
   isStringArray,
   isTrustedProject,
   listAddedPermissions,
   mergeSettings,
 } from "./lib.js";
 import type { MergeSettingsResult } from "./lib.js";
+
+const dirPath: string = join("home", "user");
+const claudeDirPath: string = getClaudeDirPath(dirPath);
+
+describe("getClaudeDirPath", () => {
+  it("should return the .claude directory in the given directory", () =>
+    expect(claudeDirPath).toBe(join(dirPath, ".claude")));
+});
+
+describe("getGlobalSettingsPath", () => {
+  it("should return settings.json in the .claude directory", () =>
+    expect(getGlobalSettingsPath(dirPath)).toBe(
+      join(claudeDirPath, "settings.json"),
+    ));
+});
+
+describe("getLocalSettingsPath", () => {
+  it("should return settings.local.json in the .claude directory", () =>
+    expect(getLocalSettingsPath(dirPath)).toBe(
+      join(claudeDirPath, "settings.local.json"),
+    ));
+});
 
 describe("isStringArray", () => {
   describe("valid string arrays", () => {

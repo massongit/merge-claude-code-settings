@@ -1,3 +1,31 @@
+import { join } from "node:path";
+/**
+ * Get the .claude directory path in a home or project directory
+ *
+ * @param dirPath - Home or project directory path
+ * @returns .claude directory path
+ */
+export function getClaudeDirPath(dirPath) {
+    return join(dirPath, ".claude");
+}
+/**
+ * Get the global settings file path
+ *
+ * @param homeDirPath - Home directory path
+ * @returns Global settings file path
+ */
+export function getGlobalSettingsPath(homeDirPath) {
+    return join(getClaudeDirPath(homeDirPath), "settings.json");
+}
+/**
+ * Get the local settings file path of a project
+ *
+ * @param projectPath - Project path
+ * @returns Local settings file path
+ */
+export function getLocalSettingsPath(projectPath) {
+    return join(getClaudeDirPath(projectPath), "settings.local.json");
+}
 /**
  * Type guard to validate if a value is a string array
  * @param value - Value to check

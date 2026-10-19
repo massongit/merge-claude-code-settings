@@ -1,3 +1,5 @@
+import { join } from "node:path";
+
 /**
  * Type definition for permissions
  * Key is the permission type (e.g., "allow"), value is usually an array of commands,
@@ -21,6 +23,36 @@ export interface Settings {
 export interface MergeSettingsResult {
   settings: Settings;
   mergedAllowCommands: string[];
+}
+
+/**
+ * Get the .claude directory path in a home or project directory
+ *
+ * @param dirPath - Home or project directory path
+ * @returns .claude directory path
+ */
+export function getClaudeDirPath(dirPath: string): string {
+  return join(dirPath, ".claude");
+}
+
+/**
+ * Get the global settings file path
+ *
+ * @param homeDirPath - Home directory path
+ * @returns Global settings file path
+ */
+export function getGlobalSettingsPath(homeDirPath: string): string {
+  return join(getClaudeDirPath(homeDirPath), "settings.json");
+}
+
+/**
+ * Get the local settings file path of a project
+ *
+ * @param projectPath - Project path
+ * @returns Local settings file path
+ */
+export function getLocalSettingsPath(projectPath: string): string {
+  return join(getClaudeDirPath(projectPath), "settings.local.json");
 }
 
 /**

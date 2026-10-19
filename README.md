@@ -24,7 +24,7 @@ This enables common permissions across all projects.
 - Skips `.claude/settings.local.json` reached through a symbolic link
 - Lists permissions to be added to global settings and asks for confirmation before writing
 - Merges into global settings (`~/.claude/settings.json`)
-- Creates automatic backup (`~/.claude/settings.json.bak`) before writing
+- Creates a timestamped backup (`~/.claude/settings.json.<timestamp>.bak`) before writing
 - Combines arrays in the `permissions` field and automatically removes duplicates
 - Debug output for allowed commands
 
@@ -48,8 +48,8 @@ The following operations are performed.
 2. Loads `.claude/settings.local.json` from each project whose trust dialog has been accepted
 3. Merges settings
 4. Lists the permissions to be added to global settings and asks for confirmation
-5. Creates a backup of the current settings (`~/.claude/settings.json.bak`)
-6. Writes the merged settings to `~/.claude/settings.json`
+5. Creates a backup of the current settings (`~/.claude/settings.json.<timestamp>.bak`)
+6. Writes the merged settings to `~/.claude/settings.json` atomically, keeping its file permissions
 
 Permissions added to global settings apply to every project.
 Check the list carefully, especially for repositories cloned from untrusted sources.
@@ -131,14 +131,17 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 65 comprehensive tests covering:
+This runs 71 comprehensive tests covering:
 
+- `getClaudeDirPath`: `.claude` directory path (1 test)
+- `getGlobalSettingsPath`: Global settings file path (1 test)
+- `getLocalSettingsPath`: Project local settings file path (1 test)
 - `isStringArray`: Type guard validation (21 tests)
 - `mergeSettings`: Settings merge logic (23 tests)
 - `isTrustedProject`: Trust dialog state check (5 tests)
 - `escapeControlCharacters`: Escaping control characters for terminal output (4 tests)
 - `listAddedPermissions`: Listing permissions to be added (5 tests)
-- CLI: Skipping untrusted projects and symbolic links, and confirmation (7 tests)
+- CLI: Skipping untrusted projects and symbolic links, confirmation, and writing (10 tests)
 
 ## Code Formatting
 

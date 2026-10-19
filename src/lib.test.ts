@@ -13,8 +13,9 @@ import {
   isTrustedProject,
   listAddedPermissions,
   mergeSettings,
+  parseSettings,
 } from "./lib.js";
-import type { MergeSettingsResult } from "./lib.js";
+import type { MergeSettingsResult, Settings } from "./lib.js";
 
 const dirPath: string = join("home", "user");
 const claudeDirPath: string = getClaudeDirPath(dirPath);
@@ -613,6 +614,38 @@ describe("mergeSettings", () => {
 
       expect(result.settings.permissions).toEqual({ allow: ["cmd1"] });
     });
+  });
+});
+
+describe("parseSettings", () => {
+  it("should parse a JSON object", () =>
+    expect(parseSettings('{"permissions":{"allow":["Bash(ls)"]}}')).toEqual({
+      permissions: { allow: ["Bash(ls)"] },
+    }));
+
+  it("should return undefined for invalid JSON", () =>
+    expect(parseSettings("{")).toBeUndefined());
+
+  it("should return undefined for null", () =>
+    expect(parseSettings("null")).toBeUndefined());
+
+  it("should return undefined for an array", () =>
+    expect(parseSettings("[]")).toBeUndefined());
+
+  it("should return undefined for a string", () =>
+    expect(parseSettings('"settings"')).toBeUndefined());
+
+  it("should return undefined when permissions is not an object", () =>
+    expect(parseSettings('{"permissions":["Bash(ls)"]}')).toBeUndefined());
+
+  it("should not pollute prototypes with __proto__ keys", () => {
+    const settings: Settings | undefined = parseSettings(
+      '{"__proto__":{"polluted":true},"permissions":{"__proto__":{"allow":["Bash(rm)"]}}}',
+    );
+    expect(settings).toEqual({ permissions: {} });
+    expect(Object.getPrototypeOf(settings)).toBe(Object.prototype);
+    expect(Object.getPrototypeOf(settings?.permissions)).toBe(Object.prototype);
+    expect(settings?.permissions?.allow).toBeUndefined();
   });
 });
 

@@ -22,6 +22,7 @@ This enables common permissions across all projects.
 - Automatically detects `.claude/settings.local.json` from multiple projects
 - Skips projects whose trust dialog has not been accepted in Claude Code
 - Skips `.claude/settings.local.json` reached through a symbolic link
+- Skips invalid `.claude/settings.local.json`, and merges the other projects
 - Lists permissions to be added to global settings and asks for confirmation before writing
 - Merges into global settings (`~/.claude/settings.json`)
 - Creates a timestamped backup (`~/.claude/settings.json.<timestamp>.bak`) before writing
@@ -131,17 +132,18 @@ Run the test suite to verify the functionality of library functions.
 bun test
 ```
 
-This runs 71 comprehensive tests covering:
+This runs 81 comprehensive tests covering:
 
 - `getClaudeDirPath`: `.claude` directory path (1 test)
 - `getGlobalSettingsPath`: Global settings file path (1 test)
 - `getLocalSettingsPath`: Project local settings file path (1 test)
 - `isStringArray`: Type guard validation (21 tests)
 - `mergeSettings`: Settings merge logic (23 tests)
+- `parseSettings`: Parsing settings files (7 tests)
 - `isTrustedProject`: Trust dialog state check (5 tests)
 - `escapeControlCharacters`: Escaping control characters for terminal output (4 tests)
 - `listAddedPermissions`: Listing permissions to be added (5 tests)
-- CLI: Skipping untrusted projects and symbolic links, confirmation, and writing (10 tests)
+- CLI: Skipping unsafe local settings, confirmation, and writing (13 tests)
 
 ## Code Formatting
 

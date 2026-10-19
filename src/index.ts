@@ -41,6 +41,7 @@ import {
   isTrustedProject,
   listAddedPermissions,
   mergeSettings,
+  parseSettings,
 } from "./lib.js";
 import { version } from "./version.js";
 import type { Interface } from "node:readline";
@@ -219,17 +220,20 @@ async function main(showAllowCommands: boolean, yes: boolean) {
     }
 
     // Read local settings
-    try {
-      localSettingsRecord[localSettingsPath] = JSON.parse(
-        readFileSync(localSettingsPath, "utf-8"),
+    const localSettings: Settings | undefined = parseSettings(
+      readFileSync(localSettingsPath, "utf-8"),
+    );
+
+    // Skip invalid local settings so that one project cannot stop the others.
+    // The parser message is not shown because it can contain the file content.
+    if (localSettings === undefined) {
+      console.warn(
+        `Skipping "${escapedLocalSettingsPath}" because it is not valid settings.`,
       );
-    } catch (error) {
-      const message: string =
-        error instanceof Error ? error.message : String(error);
-      throw new Error(
-        `Failed to parse JSON in local settings file "${localSettingsPath}": ${message}`,
-      );
+      continue;
     }
+
+    localSettingsRecord[localSettingsPath] = localSettings;
   }
 
   const mergeResult: MergeSettingsResult = mergeSettings({

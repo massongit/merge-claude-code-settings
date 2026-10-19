@@ -1,21 +1,24 @@
 import { join } from "node:path";
+import z from "zod";
 
 /**
- * Type definition for permissions
+ * Schema for permissions
  * Key is the permission type (e.g., "allow"), value is usually an array of commands,
  * but some keys (e.g., "defaultMode") hold other values
  */
-interface Permissions {
-  [key: string]: unknown;
-}
+const permissionsSchema = z.record(z.string(), z.unknown());
+
+type Permissions = z.infer<typeof permissionsSchema>;
 
 /**
- * Type definition for Claude Code settings object
+ * Schema for Claude Code settings object
+ * Fields other than permissions are kept as-is
  */
-export interface Settings {
-  permissions?: Permissions;
-  [key: string]: unknown;
-}
+const settingsSchema = z.looseObject({
+  permissions: permissionsSchema.optional(),
+});
+
+export type Settings = z.infer<typeof settingsSchema>;
 
 /**
  * Result of merging multiple local settings into global settings
@@ -157,6 +160,19 @@ export function mergeSettings({
     settings,
     mergedAllowCommands,
   };
+}
+
+/**
+ * Parse a settings file
+ *
+ * @param text - Content of the settings file
+ * @returns Settings, or undefined if the content is not valid settings
+ */
+export function parseSettings(text: string): Settings | undefined {
+  const settings: z.ZodSafeParseResult<Settings> = settingsSchema.safeParse(
+    JSON.parse(text),
+  );
+  return settings.success ? settings.data : undefined;
 }
 
 /**

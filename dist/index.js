@@ -116,12 +116,14 @@ async function main(showAllowCommands, yes) {
         const escapedLocalSettingsPath = escapeControlCharacters(localSettingsPath);
         // Skip projects that Claude Code itself does not trust
         if (!isTrustedProject(project)) {
-            console.warn(`Skipping "${escapedLocalSettingsPath}" because the trust dialog has not been accepted for this project in Claude Code.`);
+            console.warn(`Skipping "${escapedLocalSettingsPath}" ` +
+                "because the trust dialog has not been accepted for this project in Claude Code.");
             continue;
         }
         // Skip symbolic links and special files so that files outside the project are not read
         if (!isRegularFileInProject(projectPath, localSettingsPath)) {
-            console.warn(`Skipping "${escapedLocalSettingsPath}" because it is not a regular file inside the project, such as a symbolic link.`);
+            console.warn(`Skipping "${escapedLocalSettingsPath}" ` +
+                "because it is not a regular file inside the project, such as a symbolic link.");
             continue;
         }
         // Read local settings

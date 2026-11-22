@@ -61,6 +61,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_BIOME_FORMAT: false
+          # go.mod exists only to manage ghalint via the tool directive; this repository has no Go code of its own
+          # The golangci-lint bundled with Super-Linter cannot keep up with the Go version in go.mod and fails to type-check Go code in node_modules, so disable it
+          VALIDATE_GO_MODULES: false
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
